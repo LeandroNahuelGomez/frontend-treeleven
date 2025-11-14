@@ -1,0 +1,231 @@
+* {
+    margin: 0;
+    padding: 0;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+.home-content {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+}
+
+.home-container{
+    height: 92dvh;
+    width: 100dvw;
+    display: flex;
+}
+
+.box-one{
+    height: 100%;
+    width: 40%;
+    /* background: rgb(29,161,242); */
+    background: var(--primary-color);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.box-one .text {
+    width: 60%;
+}
+
+
+.box-one .sentence{
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 40px 0px;
+}
+
+.box-one .sentence .span{
+    color: white;
+    font-size: 25;
+    margin: 0px 15px;
+}
+
+.box-one .sentence p{
+    color: white;
+    font-size: 19px;
+    font-weight: bold;
+}
+
+/*Box Two*/
+
+.box-two {
+    height: 100%;
+    width: 60%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.buttons .logo{
+    width: 140px;
+    height: auto;
+    margin: 0px 0px;
+}
+
+img {
+    width: 100px;
+    height: auto;
+    z-index: 0;
+}
+
+.buttons{
+    width: 60%;
+}
+
+.buttons .title{
+    font-size: 33px;
+    font-weight: bold;
+}
+
+.buttons-content{
+    margin-top: 50px;
+    display: flex;
+    flex-direction: column;
+}
+
+.buttons-content .description {
+    font-weight: bold;
+}
+
+
+.buttons-content button{
+    /* background-color: rgb(29,161,242); */
+    background-color: var(--primary-color);
+    border: none;
+    border-radius: 20px;
+    color: white;
+    font-weight: bold;
+    font-size: 17px;
+    padding: 10px 0px;
+    margin: 10px 0px;
+}
+
+.buttons-content button:hover{
+    background: rgba(159, 226, 86, 0.80);
+}
+
+.buttons-content a{
+    width: 100%;
+    padding: 10px 0px;
+    /* border: 1px solid  rgb(29,161,242); */
+    border: 1px solid var(--primary-color);
+    border-radius: 20px;
+    text-align: center;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 17px;
+    color: var(--primary-color);
+    transition: all .3s;
+}
+
+.buttons-content a:hover{
+    background: rgba(81, 21, 140, 0.90);
+}
+
+/* === Responsive Mobile === */
+@media (max-width: 768px) {
+    .home-container {
+        flex-direction: column;   /* Opcional, en caso de usar más cosas en futuro */
+        height: auto;
+    }
+
+    .box-one {
+        display: none;  /* Ocultar el lado izquierdo */
+    }
+
+    .box-two {
+        width: 90vw;
+        height: 90vh;
+        justify-content: center;
+        padding: 10px;
+    }
+
+    .buttons {
+        width: 80%; /* Más cómodo en mobile */
+        text-align: center;
+    }
+
+    .buttons .title {
+        font-size: 26px;
+    }
+
+    .buttons-content button,
+    .buttons-content a {
+        font-size: 16px;
+        padding: 12px 0;
+    }
+}
+
+
+
+
+
+
+
+
+/*PRUEBAS*/
+/* .overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.form-card {
+  background: white;
+  padding: 2rem;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 400px;
+  position: relative;
+}
+
+.close-btn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.form-card h2 {
+  margin-bottom: 1.5rem;
+}
+
+.form-card form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.form-card input {
+  padding: 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+.form-card button[type="submit"] {
+  padding: 0.75rem;
+  background-color: #1da1f2;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+} */
+
+
+

@@ -1,0 +1,34 @@
+<div class="navbar-container">
+  <!-- Logo -->
+  <div class="navbar-header">
+    <img src="assets/img/TextoRedSocial2.png" alt="Logotipo de la marca TreeLeven" class="logo">
+  </div>
+
+  <!-- Menu Items -->
+  <nav class="navbar-menu">
+    <div *ngFor="let item of menuItems" class="navbar-item" [class.active]="activeItem === item.id"
+      (click)="handleMenuItemClick(item)">
+      <span class="material-icons navbar-icon">{{item.icon}}</span>
+      <span class="navbar-label">{{item.label}}</span>
+    </div>
+  </nav>
+
+  <!-- Footer (Más opciones) -->
+  <div class="navbar-footer">
+    <div class="navbar-item">
+      <span class="material-icons navbar-icon">menu</span>
+      <span class="navbar-label">Más</span>
+    </div>
+  </div>
+
+    <!-- Navbar Mobile -->
+  <div class="navbar-mobile">
+    <div *ngFor="let item of mobileMenuItems" 
+         class="navbar-mobile-item"
+         [class.active]="activeItem === item.id"
+         (click)="handleMenuItemClick(item)">
+      <span class="material-icons">{{item.icon}}</span>
+    </div>
+  </div>
+
+</div>

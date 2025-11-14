@@ -1,0 +1,96 @@
+<div class="background-black">
+  <div class="window-login">
+    <div class="header-login">
+      <button type="button" class="btn-back" (click)="goHome()">
+        <svg viewBox="0 0 24 24" width="20" height="20">
+          <path fill="currentColor" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
+        </svg>
+      </button>
+
+      <img (click)="goHome()" src="assets/img/LogoTreeVerdeRecortado.png" alt="Logotipo de TreeLeven" class="img">
+
+      <button type="button" class="btn-next"></button>
+    </div>
+
+    <div class="progress-indicator">
+      <div class="progress-bar">
+        <div class="progress-fill" [style.width.%]="(currentStep / totalSteps) * 100"></div>
+      </div>
+    </div>
+
+    <div class="login-container">
+      <p class="title">Inicia sesión en TreeLeven</p>
+
+      <div class="error-alert" *ngIf="errorMessage">
+        <svg viewBox="0 0 24 24" width="20" height="20">
+          <path fill="currentColor"
+            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
+        </svg>
+        {{ errorMessage }}
+      </div>
+
+      <!-- 🔹 Envío del formulario -->
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+
+        <div class="input-content">
+          <label for="identificador">Correo o nombre de usuario</label>
+          <input type="text" id="identificador" formControlName="identificador"
+            placeholder="Ingresa tu correo o usuario" autocomplete="username"
+            [class.input-error]="hasError('identificador', 'required') || hasError('identificador', 'minlength')">
+          <span class="error-message" *ngIf="getIdentificadorErrorMessage()">
+            {{ getIdentificadorErrorMessage() }}
+          </span>
+        </div>
+
+        <div class="input-content password-input">
+          <label for="contrasena">Contraseña</label>
+          <div class="password-wrapper">
+            <input [type]="showPassword ? 'text' : 'password'" id="contrasena" formControlName="contrasena"
+              placeholder="Ingresa tu contraseña" autocomplete="current-password"
+              [class.input-error]="hasError('contrasena', 'required') || hasError('contrasena', 'minlength') || hasError('contrasena', 'upperCase') || hasError('contrasena', 'number')">
+            <button type="button" class="toggle-password" (click)="togglePasswordVisibility()"
+              [attr.aria-label]="showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'">
+              <svg *ngIf="!showPassword" viewBox="0 0 24 24" width="20" height="20">
+                <path fill="currentColor"
+                  d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z" />
+              </svg>
+              <svg *ngIf="showPassword" viewBox="0 0 24 24" width="20" height="20">
+                <path fill="currentColor"
+                  d="M2 4.27l2.28 2.28C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27z" />
+              </svg>
+            </button>
+          </div>
+          <span class="error-message" *ngIf="getPasswordErrorMessage()">
+            {{ getPasswordErrorMessage() }}
+          </span>
+        </div>
+
+        <div class="forgot-password">
+          <a href="#">¿Olvidaste tu contraseña?</a>
+        </div>
+
+        <button type="submit" class="btn-submit" [disabled]="isLoading">
+          <span *ngIf="!isLoading">Iniciar sesión</span>
+          <span *ngIf="isLoading" class="loading-spinner">
+            <svg viewBox="0 0 24 24" width="20" height="20">
+              <path fill="currentColor"
+                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" opacity="0.3" />
+              <path fill="currentColor"
+                d="M12 2v2c4.41 0 8 3.59 8 8h2c0-5.52-4.48-10-10-10z" />
+            </svg>
+            Iniciando sesión...
+          </span>
+        </button>
+      </form>
+
+      <div class="divider"><span>o</span></div>
+
+      <div class="register-section">
+        <p>¿No tienes una cuenta?</p>
+        <button type="button" class="btn-register" (click)="goToRegister()">
+          Crear cuenta
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
