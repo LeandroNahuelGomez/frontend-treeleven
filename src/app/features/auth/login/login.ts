@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
@@ -17,8 +17,8 @@ export class Login {
   showPassword = false;
   currentStep = 1;
   totalSteps = 1;
-  isLoading = false;
-  errorMessage = '';
+  isLoading = signal<boolean>(false);
+  errorMessage = signal<string>('');
 
   constructor(
     private router: Router,
@@ -28,43 +28,53 @@ export class Login {
 
   ngOnInit(): void {
     this.loginForm = this.fb.group({
-      identificador: ['', [Validators.required, Validators.minLength(3)]],
-      contrasena: ['', [Validators.required, this.passwordValidator]]
+      identificator: ['', [Validators.required, Validators.minLength(3)]],
+      password: ['', [Validators.required, this.passwordValidator]]
     });
   }
 
   /** 🔹 Manejador del submit del formulario */
   onSubmit(): void {
     this.submitted = true;
-    this.errorMessage = '';
+    this.errorMessage.set('');
 
     if (this.loginForm.invalid) return;
 
-    this.isLoading = true;
+    this.isLoading.set(true);
 
     const loginData = {
-      identificator: this.loginForm.value.identificador,
-      password: this.loginForm.value.contrasena
+      identificator: this.loginForm.value.identificator,
+      password: this.loginForm.value.password
     };
 
     this.authService.login(loginData).subscribe({
       next: (response) => {
-        this.isLoading = false;
+        this.errorMessage.set("");
+        this.isLoading.set(false);
         console.log('Login exitoso:', response);
         this.router.navigate(['/publicaciones']);
       },
       error: (error) => {
-        this.isLoading = false;
-        console.error('Error en login:', error);
+        this.isLoading.set(false);
+        console.log("Probando con status ", error.status)
+        console.log(this.isLoading)
 
         if (error.error?.message) {
-          this.errorMessage = error.error.message;
-        } else if (error.status === 401) {
-          this.errorMessage = 'Credenciales incorrectas';
-        } else if (error.status === 0) {
-          this.errorMessage = 'No se puede conectar con el servidor.';
-        } else {
-          this.errorMessage = 'Error al iniciar sesión. Intenta nuevamente.';
+          console.log(error.error.message)
+          this.errorMessage.set(error.error.message);
+        } 
+        
+        else if (error.status === 401) {
+          console.log(error.status)
+          this.errorMessage.set('Credenciales incorrectas');
+        } 
+        
+        else if (error.status === 0) {
+          this.errorMessage.set('No se puede conectar con el servidor.');
+        } 
+        
+        else {
+          this.errorMessage.set('Error al iniciar sesión. Intenta nuevamente.');
         }
       }
     });
@@ -104,8 +114,8 @@ export class Login {
     return !!(field && field.hasError(errorType) && (field.touched || this.submitted));
   }
 
-  getIdentificadorErrorMessage(): string {
-    const field = this.loginForm.get('identificador');
+  getIdentificatorErrorMessage(): string {
+    const field = this.loginForm.get('identificator');
     if (!field || (!field.touched && !this.submitted)) return '';
     if (field.hasError('required')) return 'Este campo es obligatorio';
     if (field.hasError('minlength')) return 'Debe tener al menos 3 caracteres';
@@ -113,7 +123,7 @@ export class Login {
   }
 
   getPasswordErrorMessage(): string {
-    const field = this.loginForm.get('contrasena');
+    const field = this.loginForm.get('password');
     if (!field || (!field.touched && !this.submitted)) return '';
     if (field.hasError('required')) return 'La contraseña es obligatoria';
 

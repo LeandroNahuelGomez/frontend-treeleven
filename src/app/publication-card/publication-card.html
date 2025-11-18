@@ -1,0 +1,64 @@
+<article class="card">
+  <!-- Header -->
+  <div class="card-header">
+    <div class="author">
+      <img 
+        [src]="publication.author.profileImageUrl" 
+        [alt]="publication.author.name"
+        class="avatar"
+      />
+      <div class="author-info">
+        <h3 class="author-name">
+          {{ publication.author.name }} {{ publication.author.lastName }}
+        </h3>
+        <div class="meta">
+          <span class="username">@{{ publication.author.userName }}</span>
+          <span class="separator">•</span>
+          <span class="date">{{ getTimeAgo(publication.createdAt) }}</span>
+        </div>
+      </div>
+    </div>
+
+    <button 
+      *ngIf="canDelete" 
+      class="btn-delete" 
+      (click)="deletePost()"
+      title="Eliminar"
+    >
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Content -->
+  <div class="card-body">
+    <h2 class="title">{{ publication.title }}</h2>
+    <p class="description">{{ publication.description }}</p>
+
+    <div *ngIf="publication.image" class="image-container">
+      <img [src]="publication.image" [alt]="publication.title" />
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="card-footer">
+    <button 
+      class="btn-like" 
+      [class.liked]="publication.userLiked"
+      (click)="toggleLike()"
+    >
+      <svg 
+        width="24" 
+        height="24" 
+        viewBox="0 0 24 24" 
+        [attr.fill]="publication.userLiked ? 'currentColor' : 'none'"
+        stroke="currentColor" 
+        stroke-width="2"
+      >
+        <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
+      </svg>
+      <span>{{ publication.numberLikes }}</span>
+    </button>
+  </div>
+</article>

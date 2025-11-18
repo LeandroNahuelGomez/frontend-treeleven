@@ -1,7 +1,7 @@
 .perfil-container {
   min-height: 100vh;
   background-color: var(--background-color);
-  padding-top: 80px;
+  padding-top: 100px;
   padding-bottom: 40px;
 }
 
@@ -187,7 +187,7 @@
 /* Responsive */
 @media (max-width: 768px) {
   .perfil-container {
-    padding-top: 70px;
+    padding-top: 80px;
     padding-bottom: 30px;
   }
 

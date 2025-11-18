@@ -3,6 +3,7 @@ import { Login } from './features/auth/login/login';
 import { Register } from './features/auth/register/register';
 import { Home } from './features/home/home';
 import { Publications } from './features/publications/publications';
+import { PublicationCardComponent } from './publication-card/publication-card';
 
 
 export const routes: Routes = [
@@ -30,6 +31,10 @@ export const routes: Routes = [
     {
         path: "mi-perfil",
         loadComponent: () => import('./features/profile/profile').then(m => m.Profile)
+    },
+    {
+        path: "publicacion",
+        loadComponent: () => import('./publication-card/publication-card').then(m => m.PublicationCardComponent)
     },
     {
         path: '404',

@@ -274,7 +274,7 @@ export class Register {
       }
     })
 
-    this.router.navigate(["/publicaciones"])
+    this.router.navigate(["/login"])
   }
 
   calcularEdad(fechaNacimiento: Date): number {

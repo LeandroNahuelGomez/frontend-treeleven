@@ -21,33 +21,33 @@
     <div class="login-container">
       <p class="title">Inicia sesión en TreeLeven</p>
 
-      <div class="error-alert" *ngIf="errorMessage">
+      <div class="error-alert" *ngIf="errorMessage()">
         <svg viewBox="0 0 24 24" width="20" height="20">
           <path fill="currentColor"
             d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
         </svg>
-        {{ errorMessage }}
+        {{ errorMessage() }}
       </div>
 
       <!-- 🔹 Envío del formulario -->
       <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
 
         <div class="input-content">
-          <label for="identificador">Correo o nombre de usuario</label>
-          <input type="text" id="identificador" formControlName="identificador"
+          <label for="identificator">Correo o nombre de usuario</label>
+          <input type="text" id="identificator" formControlName="identificator"
             placeholder="Ingresa tu correo o usuario" autocomplete="username"
-            [class.input-error]="hasError('identificador', 'required') || hasError('identificador', 'minlength')">
-          <span class="error-message" *ngIf="getIdentificadorErrorMessage()">
-            {{ getIdentificadorErrorMessage() }}
+            [class.input-error]="hasError('identificator', 'required') || hasError('identificator', 'minlength')">
+          <span class="error-message" *ngIf="getIdentificatorErrorMessage()">
+            {{ getIdentificatorErrorMessage() }}
           </span>
         </div>
 
         <div class="input-content password-input">
-          <label for="contrasena">Contraseña</label>
+          <label for="password">Contraseña</label>
           <div class="password-wrapper">
-            <input [type]="showPassword ? 'text' : 'password'" id="contrasena" formControlName="contrasena"
+            <input [type]="showPassword ? 'text' : 'password'" id="password" formControlName="password"
               placeholder="Ingresa tu contraseña" autocomplete="current-password"
-              [class.input-error]="hasError('contrasena', 'required') || hasError('contrasena', 'minlength') || hasError('contrasena', 'upperCase') || hasError('contrasena', 'number')">
+              [class.input-error]="hasError('password', 'required') || hasError('password', 'minlength') || hasError('contrasena', 'upperCase') || hasError('contrasena', 'number')">
             <button type="button" class="toggle-password" (click)="togglePasswordVisibility()"
               [attr.aria-label]="showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'">
               <svg *ngIf="!showPassword" viewBox="0 0 24 24" width="20" height="20">
@@ -69,9 +69,9 @@
           <a href="#">¿Olvidaste tu contraseña?</a>
         </div>
 
-        <button type="submit" class="btn-submit" [disabled]="isLoading">
-          <span *ngIf="!isLoading">Iniciar sesión</span>
-          <span *ngIf="isLoading" class="loading-spinner">
+        <button type="submit" class="btn-submit" [disabled]="isLoading()">
+          <span *ngIf="!isLoading()">Iniciar sesión</span>
+          <span *ngIf="isLoading()" class="loading-spinner">
             <svg viewBox="0 0 24 24" width="20" height="20">
               <path fill="currentColor"
                 d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" opacity="0.3" />

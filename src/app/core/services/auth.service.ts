@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
-import { HttpClient, HttpHeaders } from "@angular/common/http";
-import { Observable, BehaviorSubject, tap, catchError, throwError } from "rxjs";
+import { HttpClient, HttpErrorResponse, HttpHeaders } from "@angular/common/http";
+import { Observable, BehaviorSubject, tap, map, catchError, throwError, of } from "rxjs";
 import { Router } from "@angular/router";
 
 export interface LoginCredentials {
@@ -58,14 +58,22 @@ export class AuthService {
     private router: Router
   ) { }
 
-  login(credentials: LoginCredentials): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>(`${this.API_URL}/login`, credentials, {
+  //Login funcional - FUNCIONA TODO CORRECTAMENTE
+  login(credentials: LoginCredentials): Observable<AuthorizeResponse> {
+    return this.http.post<AuthorizeResponse>(`${this.API_URL}/login`, credentials, {
       withCredentials: true, //Envia y recibe cookies
     }).pipe(
-      tap(res => console.log("Login Exitoso", res))
+      tap(res => {
+        console.log("Login Exitoso", res)
+        if (res.success && res.data.user) {
+          this.currentUserSubject.next(res.data.user)
+        }
+      })
     )
   }
 
+
+  //FUNCIONA CORRECTAMENTE
   register(formData: FormData): Observable<RegisterResponse> {
     return this.http.post<RegisterResponse>(`${this.API_URL}/register`, formData, {
       withCredentials: true
@@ -82,13 +90,46 @@ export class AuthService {
     )
   }
 
+
+  //Funciona correctamente
   getCurrentUser(): UsuarioResponse | null {
     return this.currentUserSubject.value;
   }
 
+  //Funciona correctamente
   isAuthenticated(): boolean {
     return this.currentUserSubject.value !== null;
   }
+
+
+  //AUTORIZAR COOKIE
+  authorize(): Observable<UsuarioResponse | null> {
+    return this.http.get<AuthorizeResponse>(`${this.API_URL}/autorizar`, {
+      withCredentials: true
+    }).pipe(
+      // transform AuthorizeResponse into UsuarioResponse | null
+      map(res => (res && res.success && res.data && res.data.valid) ? res.data.user : null),
+      tap(user => {
+        if (user) {
+          this.currentUserSubject.next(user);
+        } else {
+          this.currentUserSubject.next(null);
+        }
+      }),
+      catchError(() => {
+        this.currentUserSubject.next(null);
+        return of(null);
+      }),
+      tap(() => console.log("Sesion verificada: " + this.currentUserSubject.value))
+    )
+  }
+
+  //Funciona correctamente
+  isAdmin(): boolean {
+    const user = this.currentUserSubject.value;
+    return user?.profile === 'administrador' || false;
+  }
+
 
 
 }

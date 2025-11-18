@@ -88,6 +88,7 @@ export class Navbar {
 
   private openMessages(): void {
     console.log('Abriendo mensajes');
+    this.router.navigate(['/publicacion'])
   }
 
   private showNotifications(): void {
