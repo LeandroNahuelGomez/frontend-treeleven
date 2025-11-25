@@ -1,83 +1,84 @@
-<p>publications works!</p>
-<app-navbar></app-navbar>
-
-<main class="container">
-    <!-- Header -->
-    <header class="header">
-        <h1 class="title">Publicaciones</h1>
-        <button class="btn-primary">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <line x1="12" y1="5" x2="12" y2="19"></line>
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-            </svg>
-            Nueva Publicación
-        </button>
-    </header>
-
-    <!-- Filters -->
-    <div class="filters">
-        <button class="filter-btn" 
-        [class.active]="orderBy === 'fecha'"
-        (click)="changeOrder('fecha')"
-        >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                <line x1="16" y1="2" x2="16" y2="6"></line>
-                <line x1="8" y1="2" x2="8" y2="6"></line>
-                <line x1="3" y1="10" x2="21" y2="10"></line>
-            </svg>
-            Más recientes
-        </button>
-        <button class="filter-btn" 
-        [class.active]="orderBy === 'likes'"
-        (click)="changeOrder('likes')"
-        >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path
-                    d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
-            </svg>
-            Más gustados
-        </button>
-    </div>
-
-    <!-- Publications List -->
-    <div class="publications">
-        <app-publication-card 
-        *ngFor="let pub of publications()" 
-        [publication]="pub"
-        (delete)="handleDelete($event)"
-        (likeToggle)="handleLikeToggle($event)"></app-publication-card>
-
-        <!-- Empty State -->
-        <div class="empty" *ngIf="showEmptyState()">
-            <div class="empty-icon">📭</div>
-            <h2>No hay publicaciones</h2>
-            <p>Sé el primero en compartir algo</p>
-            <button class="btn-primary">
-                Crear publicación
+<div class="main-layout">
+    <app-navbar class="navbar"></app-navbar>
+    <main class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1 class="title">Publicaciones</h1>
+            <button class="btn-primary" (click)="openModal()"
+            >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                Nueva Publicación
+            </button>
+        </header>
+    
+        <!-- Filters -->
+        <div class="filters">
+            <button class="filter-btn" 
+            [class.active]="orderBy === 'fecha'"
+            (click)="changeOrder('fecha')"
+            >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+                Más recientes
+            </button>
+            <button class="filter-btn" 
+            [class.active]="orderBy === 'likes'"
+            (click)="changeOrder('likes')"
+            >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path
+                        d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
+                </svg>
+                Más gustados
             </button>
         </div>
-
-        <!-- Load More -->
-        <button class="btn-load-more" 
-        *ngIf="showLoadMore()" 
-        (click)="loadPublications()"
-        [disabled]="loading()"
-        >
-
-            Cargar más
-        </button>
-
-        <!-- Loading -->
-        <div class="loading" *ngIf="loading()">
-            <div class="spinner"></div>
-            <p>Cargando...</p>
+    
+        <!-- Publications List -->
+        <div class="publications">
+            <app-publication-card 
+            *ngFor="let pub of publications()" 
+            [publication]="pub"
+            (delete)="handleDelete($event)"
+            (likeToggle)="handleLikeToggle($event)"></app-publication-card>
+    
+            <!-- Empty State -->
+            <div class="empty" *ngIf="showEmptyState()">
+                <div class="empty-icon">📭</div>
+                <h2>No hay publicaciones</h2>
+                <p>Sé el primero en compartir algo</p>
+                <button class="btn-primary">
+                    Crear publicación
+                </button>
+            </div>
+    
+            <!-- Load More -->
+            <button class="btn-load-more" 
+            *ngIf="showLoadMore()" 
+            (click)="loadPublications()"
+            [disabled]="loading()"
+            >
+    
+                Cargar más
+            </button>
+    
+            <!-- Loading -->
+            <div class="loading" *ngIf="loading()">
+                <div class="spinner"></div>
+                <p>Cargando...</p>
+            </div>
         </div>
-    </div>
-</main>
+    </main>
+</div>
 
 <!-- Modal Create Publication -->
-<!-- <div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+<div class="modal-overlay" *ngIf="showModal">
     <div class="modal" (click)="$event.stopPropagation()">
         <div class="modal-header">
             <h2>Nueva Publicación</h2>
@@ -105,8 +106,9 @@
 
             <div class="form-group">
                 <label>Imagen (opcional)</label>
-                <input type="file" accept="image/*" (change)="onFileSelected($event)" #fileInput
-                    style="display: none" />
+                <input type="file" accept="image/*" #fileInput
+                    style="display: none"
+                    (change)="onFileSelected($event)" />
 
                 <div class="upload-area" *ngIf="!previewUrl" (click)="fileInput.click()">
                     <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -136,9 +138,10 @@
             <button class="btn-secondary" (click)="closeModal()">
                 Cancelar
             </button>
-            <button class="btn-primary" (click)="createPublication()" [disabled]="loading">
-                {{ loading ? 'Publicando...' : 'Publicar' }}
+            <button class="btn-primary" [disabled]="loading() || !newPublication.title.trim() || !newPublication.description.trim()"
+    (click)="createPublication()">
+                {{ loading() ? 'Publicando...' : 'Publicar' }}
             </button>
         </div>
     </div>
-</div> -->
+</div>

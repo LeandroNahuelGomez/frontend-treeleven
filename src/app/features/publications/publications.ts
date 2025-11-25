@@ -1,4 +1,4 @@
-import { Component, computed, OnInit, signal} from '@angular/core';
+import { Component, computed, OnInit, signal } from '@angular/core';
 import { Navbar } from '../../shared/navbar/navbar';
 import { CommonModule } from '@angular/common';
 import { PublicationCardComponent } from '../../publication-card/publication-card';
@@ -22,6 +22,7 @@ export class Publications implements OnInit {
   limit = 3;
   hasMore = signal(true);
   showModal = false;
+
 
 
   //Computed signals para estados derivados --> Son señales que derivan su valor de otras señales. Valores automaticamente calculados
@@ -51,13 +52,15 @@ export class Publications implements OnInit {
       this.publications.set([]); //Usamos set() en lugar de asignacion
     }
 
+
+
     this.loading.set(true);
 
     this.publicationsService.getPublications(this.orderBy, this.offset, this.limit)
       .subscribe({
         next: (response) => {
           if (response.success) {
-            if(reset){
+            if (reset) {
               this.publications.set(response.data.publications)
             } else {
               this.publications.update(current => [...current, ...response.data.publications])
@@ -73,6 +76,16 @@ export class Publications implements OnInit {
         }
       });
   }
+
+  // loadComments(): void {
+  //   console.log(this.publication._id)
+  //   this.publicationsService.getComments(this.publication._id).subscribe({
+  //     next: (res) => {
+  //       console.log("La data de respuesta es: ", res.comments)
+  //       this.comments.set(res.comments);
+  //     }
+  //   });
+  // }
 
   changeOrder(order: OrderPublications): void {
     this.orderBy = order;
@@ -95,15 +108,15 @@ export class Publications implements OnInit {
 
     action.subscribe({
       next: () => {
-        this.publications.update(current => 
+        this.publications.update(current =>
           current.map(pub => {
-            if(pub._id === publicationId) {
+            if (pub._id === publicationId) {
               return {
                 ...pub,
                 userLiked: !pub.userLiked,
                 numberLikes: pub.userLiked
-                ? pub.numberLikes - 1
-                : pub.numberLikes + 1
+                  ? pub.numberLikes - 1
+                  : pub.numberLikes + 1
               }
             }
             return pub;
@@ -130,7 +143,7 @@ export class Publications implements OnInit {
       if (result.isConfirmed) {
         this.publicationsService.deletePublication(publicationId).subscribe({
           next: () => {
-            this.publications.update(current => 
+            this.publications.update(current =>
               current.filter(p => p._id !== publicationId)
             );
 
@@ -158,92 +171,110 @@ export class Publications implements OnInit {
     });
   }
 
-  // openModal(): void {
-  //   this.showModal = true;
-  // }
+  // Agregar estos métodos a tu publications.ts
 
-  // closeModal(): void {
-  //   this.showModal = false;
-  //   this.resetForm();
-  // }
+  openModal(): void {
+    this.showModal = true;
+  }
 
-  // onFileSelected(event: any): void {
-  //   const file = event.target.files[0];
-  //   if (file) {
-  //     if (!file.type.startsWith('image/')) {
-  //       Swal.fire({
-  //         icon: 'error',
-  //         title: 'Error',
-  //         text: 'Solo se permiten imágenes'
-  //       });
-  //       return;
-  //     }
+  closeModal(): void {
+    this.showModal = false;
+    this.resetForm();
+  }
 
-  //     if (file.size > 5 * 1024 * 1024) {
-  //       Swal.fire({
-  //         icon: 'error',
-  //         title: 'Error',
-  //         text: 'La imagen no puede superar los 5MB'
-  //       });
-  //       return;
-  //     }
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
 
-  //     this.newPublication.image = file;
+    if (file) {
+      // Validar tipo
+      if (!file.type.startsWith('image/')) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Solo se permiten imágenes'
+        });
+        return;
+      }
 
-  //     const reader = new FileReader();
-  //     reader.onload = () => {
-  //       this.previewUrl = reader.result as string;
-  //     };
-  //     reader.readAsDataURL(file);
-  //   }
-  // }
+      // Validar tamaño (5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'La imagen no puede superar los 5MB'
+        });
+        return;
+      }
 
-  // removeImage(): void {
-  //   this.newPublication.image = undefined;
-  //   this.previewUrl = null;
-  // }
+      this.newPublication.image = file;
 
-  // createPublication(): void {
-  //   if (!this.newPublication.title || !this.newPublication.description) {
-  //     Swal.fire({
-  //       icon: 'error',
-  //       title: 'Error',
-  //       text: 'El título y la descripción son obligatorios'
-  //     });
-  //     return;
-  //   }
+      // Crear preview
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.previewUrl = reader.result as string;
+      };
+      reader.readAsDataURL(file);
+    }
+  }
 
-  //   this.loading = true;
+  removeImage(): void {
+    this.newPublication.image = undefined;
+    this.previewUrl = null;
+  }
 
-  //   this.publicationsService.createPublication(this.newPublication).subscribe({
-  //     next: (response) => {
-  //       this.loading = false;
-  //       this.closeModal();
-  //       Swal.fire({
-  //         icon: 'success',
-  //         title: '¡Publicado!',
-  //         text: 'Tu publicación fue creada exitosamente',
-  //         timer: 2000,
-  //         showConfirmButton: false
-  //       });
-  //       this.loadPublications(true);
-  //     },
-  //     error: () => {
-  //       this.loading = false;
-  //     }
-  //   });
-  // }
+  createPublication(): void {
+    console.log("Datos a enviar: ", this.newPublication)
+    console.log(typeof this.newPublication.title)
+    console.log(typeof this.newPublication.description)
+    console.log(typeof this.newPublication.image)
+    if (!this.newPublication.title.trim() || !this.newPublication.description.trim()) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'El título y la descripción son obligatorios'
+      });
+      return;
+    }
 
-  // resetForm(): void {
-  //   this.newPublication = {
-  //     title: '',
-  //     description: '',
-  //     image: undefined
-  //   };
-  //   this.previewUrl = null;
-  // }
+    this.loading.set(true);
 
+    this.publicationsService.createPublication(this.newPublication).subscribe({
+      next: (response) => {
+        this.loading.set(false);
+        this.closeModal();
 
+        Swal.fire({
+          icon: 'success',
+          title: '¡Publicado!',
+          text: 'Tu publicación fue creada exitosamente',
+          timer: 2000,
+          showConfirmButton: false
+        });
 
+        // Recargar publicaciones para mostrar la nueva
+        this.loadPublications(true);
+      },
+      error: (err) => {
+        this.loading.set(false);
+        console.error('Error creando publicación:', err);
+
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'No se pudo crear la publicación'
+        });
+      }
+    });
+  }
+
+  resetForm(): void {
+    this.newPublication = {
+      title: '',
+      description: '',
+      image: undefined
+    };
+    this.previewUrl = null;
+  }
 
 }

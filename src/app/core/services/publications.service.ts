@@ -41,27 +41,23 @@ export class PublicationsService {
     }
 
 
-    // getPublicationById(id: string): Observable<any> {
-    //     return this.http.get(`${this.apiUrl}/${id}`, {
-    //         withCredentials: true
-    //     })
-    // }
+    getPublicationById(id: string): Observable<any> {
+        return this.http.get(`${this.apiUrl}/${id}`, {
+            withCredentials: true
+        })
+    }
 
+    createPublication(data: CreatePublicationRequest): Observable<any> {
+        const formData = new FormData();
+        formData.append('title', data.title);
+        formData.append('description', data.description);
 
-    //-----------------------------------------------
-    //Creamos una nueva publicacion
-    //-----------------------------------------------
-    // createPublication(data: CreatePublicationRequest): Observable<any> {
-    //     const formData = new FormData();
-    //     formData.append('title', data.title);
-    //     formData.append('description', data.description);
+        if (data.image) {
+            formData.append('image', data.image);
+        }
 
-    //     if (data.image) {
-    //         formData.append('image', data.image);
-    //     }
-
-    //     return this.http.post(this.apiUrl, formData, { withCredentials: true });
-    // }
+        return this.http.post(this.apiUrl, formData, { withCredentials: true });
+    }
 
 
     deletePublication(id: string): Observable<any> {
@@ -76,6 +72,19 @@ export class PublicationsService {
         return this.http.delete(`${this.apiUrl}/${id}/like`, { withCredentials: true });
     }
 
+
+    addComment(publicationId: string, content: string): Observable<any> {
+        return this.http.post(`${this.apiUrl}/${publicationId}/comment`,
+            { content },
+            { withCredentials: true }
+        )
+    }
+
+    getComments(publicationId: string): Observable<any> {
+        return this.http.get(`${this.apiUrl}/${publicationId}/comment`,
+            { withCredentials: true }
+        )
+    }
 
 
 }

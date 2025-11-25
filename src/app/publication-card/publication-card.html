@@ -2,11 +2,7 @@
   <!-- Header -->
   <div class="card-header">
     <div class="author">
-      <img 
-        [src]="publication.author.profileImageUrl" 
-        [alt]="publication.author.name"
-        class="avatar"
-      />
+      <img [src]="publication.author.profileImageUrl" [alt]="publication.author.name" class="avatar" />
       <div class="author-info">
         <h3 class="author-name">
           {{ publication.author.name }} {{ publication.author.lastName }}
@@ -19,21 +15,16 @@
       </div>
     </div>
 
-    <button 
-      *ngIf="canDelete" 
-      class="btn-delete" 
-      (click)="deletePost()"
-      title="Eliminar"
-    >
+    <button *ngIf="canDelete" class="btn-delete" (click)="deletePost()" title="Eliminar">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+        <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
       </svg>
     </button>
   </div>
 
   <!-- Content -->
   <div class="card-body">
-    <h2 class="title">{{ publication.title }}</h2>
+    <h2 class="title" (click)="viewDetail()">{{ publication.title }}</h2>
     <p class="description">{{ publication.description }}</p>
 
     <div *ngIf="publication.image" class="image-container">
@@ -43,22 +34,102 @@
 
   <!-- Footer -->
   <div class="card-footer">
-    <button 
-      class="btn-like" 
-      [class.liked]="publication.userLiked"
-      (click)="toggleLike()"
-    >
-      <svg 
-        width="24" 
-        height="24" 
-        viewBox="0 0 24 24" 
-        [attr.fill]="publication.userLiked ? 'currentColor' : 'none'"
-        stroke="currentColor" 
-        stroke-width="2"
-      >
-        <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
+    <button class="btn-like" [class.liked]="publication.userLiked" (click)="toggleLike()">
+      <svg width="24" height="24" viewBox="0 0 24 24" [attr.fill]="publication.userLiked ? 'currentColor' : 'none'"
+        stroke="currentColor" stroke-width="2">
+        <path
+          d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
       </svg>
       <span>{{ publication.numberLikes }}</span>
     </button>
+    <button class="btn-comments" (click)="toggleComments()">
+      <svg width="24" height="24" viewBox="0 0 24 24">
+        <path stroke="currentColor" stroke-width="2" fill="none"
+          d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6A8.38 8.38 0 0111.5 3h.03A8.47 8.47 0 0121 11.5z" />
+      </svg>
+      <span>{{ totalCommentsCount() }}</span>
+    </button>
+  </div>
+
+  <!-- Comments Section -->
+  <div *ngIf="showComments()" class="comments-section">
+
+    <!-- Input para nuevo comentario -->
+    <div class="new-comment">
+      <textarea [value]="newComment()" (input)="updateNewComment($event)" placeholder="Escribe un comentario..."
+        rows="2" class="comment-input"></textarea>
+      <button class="btn-submit-comment" [disabled]="!newComment().trim() || submittingComment()"
+        (click)="submitComment()">
+        {{ submittingComment() ? 'Enviando...' : 'Comentar' }}
+      </button>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="loadingComments() && comments().length === 0" class="loading">
+      Cargando comentarios...
+    </div>
+
+    <!-- Lista de comentarios -->
+    <div class="comments-list">
+      <div *ngFor="let comment of comments()" class="comment-item">
+
+        <!-- Modo visualización -->
+        <ng-container *ngIf="editingId() !== comment._id">
+          <div class="comment-header">
+            <img [src]="comment.author.profileImageUrl || 'assets/default-avatar.png'" [alt]="comment.author.name"
+              class="comment-avatar" />
+            <div class="comment-meta">
+              <span class="comment-author">
+                {{ comment.author.name }} {{ comment.author.lastName }}
+              </span>
+              <span class="comment-time">
+                {{ getTimeAgo(comment.createdAt) }}
+                <span *ngIf="comment.edited" class="edited-badge">(editado)</span>
+              </span>
+            </div>
+          </div>
+
+          <p class="comment-message">{{ comment.message }}</p>
+
+          <div class="comment-actions">
+            <button *ngIf="canEditComment(comment)" (click)="startEditing(comment)" class="btn-action">
+              Editar
+            </button>
+            <button *ngIf="canDeleteComment(comment)" (click)="deleteComment(comment._id)"
+              class="btn-action btn-action-danger">
+              Eliminar
+            </button>
+          </div>
+        </ng-container>
+
+        <!-- Modo edición -->
+        <ng-container *ngIf="editingId() === comment._id">
+          <textarea [value]="editingText()" (input)="updateEditingText($event)" class="comment-input edit-input"
+            rows="2"></textarea>
+          <div class="edit-actions">
+            <button (click)="saveEdit()" class="btn-save" [disabled]="!editingText().trim()">
+              Guardar
+            </button>
+            <button (click)="cancelEditing()" class="btn-cancel">
+              Cancelar
+            </button>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+
+    <!-- Load More -->
+    <button *ngIf="hasMore() && !loadingComments()" (click)="loadMoreComments()" class="btn-load-more">
+      Ver más comentarios
+    </button>
+
+    <div *ngIf="loadingComments() && comments().length > 0" class="loading">
+      Cargando...
+    </div>
+
+    <!-- Sin comentarios -->
+    <div *ngIf="!loadingComments() && comments().length === 0" class="no-comments">
+      No hay comentarios aún. ¡Sé el primero!
+    </div>
   </div>
 </article>

@@ -128,6 +128,31 @@
     padding: 16px 20px;
     border-top: 1px solid #f0f0f0;
 
+    .btn-comments {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: none;
+      border: none;
+      color: #666;
+      cursor: pointer;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 15px;
+      font-weight: 600;
+      transition: all 0.2s ease;
+
+      svg {
+        transition: all 0.2s ease;
+      }
+
+      &:hover {
+        background: #f8f2ff;
+        color: #8a2be2;
+      }
+    }
+
+
     .btn-like {
       display: inline-flex;
       align-items: center;
@@ -173,4 +198,213 @@
       padding: 16px;
     }
   }
+}
+
+/* Agregar estos estilos a tu archivo CSS existente */
+
+/* ========== COMMENTS SECTION ========== */
+.comments-section {
+  border-top: 1px solid #e5e7eb;
+  padding: 1rem;
+  background-color: #fafafa;
+}
+
+.new-comment {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.comment-input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  resize: none;
+  font-family: inherit;
+  font-size: 0.9rem;
+  transition: border-color 0.2s;
+}
+
+.comment-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.btn-submit-comment {
+  align-self: flex-end;
+  padding: 0.5rem 1rem;
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-submit-comment:hover:not(:disabled) {
+  background-color: #2563eb;
+}
+
+.btn-submit-comment:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+}
+
+/* Comments List */
+.comments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.comment-item {
+  background: white;
+  padding: 0.75rem;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.comment-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.comment-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.comment-meta {
+  display: flex;
+  flex-direction: column;
+}
+
+.comment-author {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: #1f2937;
+}
+
+.comment-time {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.edited-badge {
+  font-style: italic;
+  color: #9ca3af;
+}
+
+.comment-message {
+  margin: 0.5rem 0;
+  font-size: 0.9rem;
+  color: #374151;
+  line-height: 1.4;
+}
+
+/* Comment Actions */
+.comment-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.btn-action {
+  background: none;
+  border: none;
+  font-size: 0.75rem;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.btn-action:hover {
+  background-color: #f3f4f6;
+  color: #3b82f6;
+}
+
+.btn-action-danger:hover {
+  color: #ef4444;
+}
+
+/* Edit Mode */
+.edit-input {
+  margin-bottom: 0.5rem;
+}
+
+.edit-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn-save,
+.btn-cancel {
+  padding: 0.375rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  border: none;
+}
+
+.btn-save {
+  background-color: #10b981;
+  color: white;
+}
+
+.btn-save:hover:not(:disabled) {
+  background-color: #059669;
+}
+
+.btn-save:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.btn-cancel {
+  background-color: #e5e7eb;
+  color: #374151;
+}
+
+.btn-cancel:hover {
+  background-color: #d1d5db;
+}
+
+/* Load More & States */
+.btn-load-more {
+  width: 100%;
+  padding: 0.5rem;
+  margin-top: 0.75rem;
+  background: none;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-load-more:hover {
+  background-color: #f3f4f6;
+  border-color: #9ca3af;
+}
+
+.loading,
+.no-comments {
+  text-align: center;
+  padding: 1rem;
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+.no-comments {
+  font-style: italic;
 }

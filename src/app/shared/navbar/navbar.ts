@@ -2,6 +2,7 @@
 import { Component, inject } from '@angular/core';
 import { Router, RouterLink, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { AuthService } from '../../core/services/auth.service';
 
 interface MenuItem {
   id: string;
@@ -22,11 +23,14 @@ export class Navbar {
 
   private router = inject(Router);
 
+  constructor(
+    private authService: AuthService
+  ){}
+
   menuItems: MenuItem[] = [
     { id: 'inicio', icon: 'home', label: 'Inicio', route: '/home' },
     { id: 'buscar', icon: 'search', label: 'Buscar', route: '/search' },
     { id: 'mensajes', icon: 'send', label: 'Mensajes', route: '/messages' },
-    { id: 'notificaciones', icon: 'favorite', label: 'Notificaciones', route: '/notifications' },
     { id: 'crear', icon: 'add_box', label: 'Crear', route: '/create' },
     { id: 'perfil', icon: 'person', label: 'Perfil', route: '/profile' },
     { id: 'guardados', icon: 'bookmark', label: 'Guardados', route: '/saved' },
@@ -49,7 +53,7 @@ export class Navbar {
     // Ejecutar acción específica para cada item
     switch (item.id) {
       case 'inicio':
-        this.goToHome();
+        this.goToPublications();
         break;
       case 'buscar':
         this.openSearch();
@@ -70,16 +74,31 @@ export class Navbar {
         this.showSavedItems();
         break;
       case 'logout':
-        this.goToHome();
+        this.logout()
         break;
       default:
         this.router.navigate([item.route]);
     }
   }
 
-  private goToHome(): void {
+  private logout(): void {
+  this.authService.logout().subscribe({
+    next: res => {
+      console.log('Logout completado:', res);
+      // Redirigir al login después del logout
+      this.router.navigate(['/login']);
+    },
+    error: err => {
+      console.error('Error en logout:', err);
+      // Redirigir al login aunque haya error
+      this.router.navigate(['/login']);
+    }
+  });
+}
+
+  private goToPublications(): void {
     console.log('Navegando al inicio');
-    this.router.navigate(['/home']);
+    this.router.navigate(['/publicaciones']);
   }
 
   private openSearch(): void {
@@ -88,11 +107,11 @@ export class Navbar {
 
   private openMessages(): void {
     console.log('Abriendo mensajes');
-    this.router.navigate(['/publicacion'])
   }
 
   private showNotifications(): void {
     console.log('Mostrando notificaciones');
+    this.router.navigate(["/publication-detail"])
   }
 
   private openCreateModal(): void {

@@ -4,6 +4,7 @@ import { Register } from './features/auth/register/register';
 import { Home } from './features/home/home';
 import { Publications } from './features/publications/publications';
 import { PublicationCardComponent } from './publication-card/publication-card';
+import { AuthGuard } from './core/guards/authGuard';
 
 
 export const routes: Routes = [
@@ -26,15 +27,23 @@ export const routes: Routes = [
     },
     {
         path: "publicaciones",
-        loadComponent: () => import('./features/publications/publications').then(m => m.Publications)
+        loadComponent: () => import('./features/publications/publications').then(m => m.Publications),
+        canActivate: [AuthGuard]
     },
     {
         path: "mi-perfil",
-        loadComponent: () => import('./features/profile/profile').then(m => m.Profile)
+        loadComponent: () => import('./features/profile/profile').then(m => m.Profile),
+        canActivate: [AuthGuard]
     },
     {
         path: "publicacion",
-        loadComponent: () => import('./publication-card/publication-card').then(m => m.PublicationCardComponent)
+        loadComponent: () => import('./publication-card/publication-card').then(m => m.PublicationCardComponent),
+        canActivate: [AuthGuard]
+    },
+    {
+        path: "publicacion/:id",
+        loadComponent: () => import('./publication-detail/publication-detail').then(m => m.PublicationDetail),
+        canActivate: [AuthGuard]
     },
     {
         path: '404',

@@ -1,0 +1,67 @@
+/* =======================================
+ * 1. CONTENEDOR PRINCIPAL (Responsive y Centrado)
+ * ======================================= */
+.loading-container {
+  /* Ocupa toda la ventana de visualización */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw; /* Viewport Width */
+  height: 100vh; /* Viewport Height */
+  z-index: 1000; /* Asegura que esté por encima de otros elementos */
+
+  /* Centra el contenido vertical y horizontalmente */
+  display: flex;
+  flex-direction: column; /* Apila el spinner y el texto */
+  justify-content: center;
+  align-items: center;
+
+  /* Estilo de fondo opcional */
+  background-color: rgba(255, 255, 255, 0.9); /* Fondo blanco semitransparente */
+  font-family: sans-serif;
+}
+
+.loading-text {
+  margin-top: 20px;
+  color: #333;
+  font-size: 1.1rem; /* Responsive font size */
+}
+
+
+/* =======================================
+ * 2. SPINNER (La Animación)
+ * ======================================= */
+.spinner {
+  /* Define el tamaño del círculo */
+  width: 50px;
+  height: 50px;
+  border: 5px solid #f3f3f3; /* Color de fondo del borde (gris claro) */
+  border-top: 5px solid #3498db; /* Color del borde superior (azul principal) */
+  border-radius: 50%; /* Lo convierte en un círculo */
+  
+  /* Aplica la animación */
+  animation: spin 1s linear infinite;
+}
+
+/* =======================================
+ * 3. KEYFRAMES (Define cómo se mueve la animación)
+ * ======================================= */
+@keyframes spin {
+  0% { transform: rotate(0deg); } /* Empieza en 0 grados */
+  100% { transform: rotate(360deg); } /* Termina en 360 grados */
+}
+
+/* =======================================
+ * 4. MEDIA QUERY (Ajustes para pantallas pequeñas)
+ * ======================================= */
+@media (max-width: 600px) {
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border-width: 4px; /* Hace el borde un poco más delgado */
+  }
+
+  .loading-text {
+    font-size: 1rem;
+  }
+}

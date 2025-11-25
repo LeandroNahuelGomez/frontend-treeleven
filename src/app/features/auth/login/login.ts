@@ -3,6 +3,7 @@ import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { AuthService } from '../../../core/services/auth.service';
+import { SessionService } from '../../../core/services/session.service';
 
 @Component({
   selector: 'app-login',
@@ -23,7 +24,8 @@ export class Login {
   constructor(
     private router: Router,
     private fb: FormBuilder,
-    private authService: AuthService
+    private authService: AuthService,
+    private sessionService:SessionService
   ) {}
 
   ngOnInit(): void {
@@ -52,6 +54,7 @@ export class Login {
         this.errorMessage.set("");
         this.isLoading.set(false);
         console.log('Login exitoso:', response);
+        this.sessionService.startSessionTimers();
         this.router.navigate(['/publicaciones']);
       },
       error: (error) => {

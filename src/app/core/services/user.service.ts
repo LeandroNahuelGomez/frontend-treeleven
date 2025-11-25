@@ -1,19 +1,20 @@
 import { Injectable } from "@angular/core";
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { Observable } from "rxjs";
+import { ProfileData } from "../../features/profile/profile";
 
 export interface User {
-    _id?: string;
-    name: string;
-    lastName: string;
-    email: string;
-    userName: string;
-    birthDate: Date;
-    description?: string;
-    profilePictureUrl?: string;
-    cloudinaryPublicId?: string;
-    profile?: string;
-    active?: boolean;
+  _id?: string;
+  name: string;
+  lastName: string;
+  email: string;
+  userName: string;
+  birthDate: Date;
+  description?: string;
+  profilePictureUrl?: string;
+  cloudinaryPublicId?: string;
+  profile?: string;
+  active?: boolean;
 }
 
 export interface CreateUserDto {
@@ -52,7 +53,7 @@ export class UsersService {
   // Crear usuario con imagen de perfil
   createUser(userData: CreateUserDto, profilePicture?: File): Observable<User> {
     const formData = new FormData();
-    
+
     // Agregar datos del usuario
     Object.keys(userData).forEach(key => {
       const value = userData[key as keyof CreateUserDto];
@@ -110,5 +111,31 @@ export class UsersService {
   // Eliminar usuario
   deleteUser(id: string): Observable<{ message: string }> {
     return this.http.delete<{ message: string }>(`${this.apiUrl}/${id}`);
+  }
+
+  getMyProfile(): Observable<{success: boolean; data:ProfileData}> {
+    return this.http.get<{success: boolean; data: ProfileData}>(`${this.apiUrl}/profile`,
+      {withCredentials: true}
+    )
+  }
+
+  // Actualizar perfil (datos y opcionalmente imagen)
+  updateMyProfile(updateData: UpdateUserDto, profileImage?: File): Observable<any> {
+    const formData = new FormData();
+
+    // Agregamos los datos del DTO
+    Object.keys(updateData).forEach(key => {
+      const value = updateData[key as keyof UpdateUserDto];
+      if (value !== undefined && value !== null) {
+        formData.append(key, value.toString());
+      }
+    });
+
+    // Agregamos imagen si existe
+    if (profileImage) {
+      formData.append('profile-image', profileImage);
+    }
+
+    return this.http.put<any>(`${this.apiUrl}/profile`, formData);
   }
 }
