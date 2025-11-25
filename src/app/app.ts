@@ -14,36 +14,23 @@ import { SessionModalComponent } from './session-modal/session-modal';
 })
 export class App implements OnInit {
   protected readonly title = signal('frontend-treeleven');
-  isLoading = signal(true); // ⬅️ IMPORTANTE
+  isLoading = signal(true);
 
   constructor(
     private authService: AuthService,
-    private router: Router,
     public sessionService: SessionService
-  ) { }
+  ) {}
 
   ngOnInit(): void {
-    // Verificamos sesión 1 vez al iniciar la app
-    this.verifySession();
-  }
 
-  verifySession() {
+    // Solo para mostrar el spinner MIENTRAS authorize() resuelve la primera vez
     this.authService.authorize().subscribe({
-      next: (user) => {
+      next: () => {
         this.isLoading.set(false);
-
-        if (user) {
-          // ⬅️ SOLO redirige si ESTÁS EN /home o en la raíz
-          if (this.router.url === '/' || this.router.url === '/home') {
-            this.router.navigate(['/publicaciones']);
-          }
-        }
       },
       error: () => {
         this.isLoading.set(false);
-        // no navegamos, el guard se encarga
       }
     });
   }
-
 }
