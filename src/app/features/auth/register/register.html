@@ -31,13 +31,21 @@
             <div class="step-container" *ngIf="currentStep === 1">
                 <p class="title">Crea tu cuenta</p>
 
+                <div class="error-alert" *ngIf="edadError()">
+                    <svg viewBox="0 0 24 24" width="20" height="20">
+                        <path fill="currentColor"
+                            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
+                    </svg>
+                    {{ edadError() }}
+                </div>
+
                 <!-- Nombre -->
                 <div class="input-content">
                     <label for="name">Nombre</label>
                     <input type="text" id="name" formControlName="name" placeholder="Ingresa tu nombre"
                         [class.input-error]="hasError('name', 'required') || hasError('name', 'minlength')">
-                    
-                        <span class="error-message" *ngIf="getErrorMessage('name')">
+
+                    <span class="error-message" *ngIf="getErrorMessage('name')">
                         {{ getErrorMessage('name') }}
                     </span>
                 </div>
@@ -109,11 +117,18 @@
             <div class="step-container" *ngIf="currentStep === 2">
                 <p class="title">Completa tu perfil</p>
 
+                <div class="error-alert" *ngIf="serverError()">
+                    <svg viewBox="0 0 24 24" width="20" height="20">
+                        <path fill="currentColor"
+                            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
+                    </svg>
+                    {{ serverError() }}
+                </div>
+
                 <!-- Nombre de usuario -->
                 <div class="input-content">
                     <label for="userName">Nombre de usuario</label>
-                    <input type="text" id="userName" formControlName="userName"
-                        placeholder="Ej: juan_perez123"
+                    <input type="text" id="userName" formControlName="userName" placeholder="Ej: juan_perez123"
                         [class.input-error]="hasError('userName', 'required') || hasError('userName', 'minlength') || hasError('userName', 'pattern')">
                     <span class="error-message" *ngIf="getErrorMessage('userName')">
                         {{ getErrorMessage('userName') }}

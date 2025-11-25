@@ -23,12 +23,12 @@
   </div>
 
   <!-- Content -->
-  <div class="card-body">
-    <h2 class="title" (click)="viewDetail()">{{ publication.title }}</h2>
+  <div class="card-body" >
+    <h2 class="title" (click)="viewDetail()" >{{ publication.title }}</h2>
     <p class="description">{{ publication.description }}</p>
 
     <div *ngIf="publication.image" class="image-container">
-      <img [src]="publication.image" [alt]="publication.title" />
+      <img [src]="publication.image" [alt]="publication.title" (click)="viewDetail()"/>
     </div>
   </div>
 

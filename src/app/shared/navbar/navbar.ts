@@ -30,10 +30,10 @@ export class Navbar {
   menuItems: MenuItem[] = [
     { id: 'inicio', icon: 'home', label: 'Inicio', route: '/home' },
     { id: 'buscar', icon: 'search', label: 'Buscar', route: '/search' },
-    { id: 'mensajes', icon: 'send', label: 'Mensajes', route: '/messages' },
-    { id: 'crear', icon: 'add_box', label: 'Crear', route: '/create' },
+    // { id: 'mensajes', icon: 'send', label: 'Mensajes', route: '/messages' },
+    // { id: 'crear', icon: 'add_box', label: 'Crear', route: '/create' },
     { id: 'perfil', icon: 'person', label: 'Perfil', route: '/profile' },
-    { id: 'guardados', icon: 'bookmark', label: 'Guardados', route: '/saved' },
+    // { id: 'guardados', icon: 'bookmark', label: 'Guardados', route: '/saved' },
     { id: 'logout', icon: 'logout', label: 'Logout', route: '/logout' }
   ];
 
@@ -64,9 +64,9 @@ export class Navbar {
       case 'notificaciones':
         this.showNotifications();
         break;
-      case 'crear':
-        this.openCreateModal();
-        break;
+      // case 'crear':
+      //   this.openCreateModal();
+      //   break;
       case 'perfil':
         this.goToProfile();
         break;

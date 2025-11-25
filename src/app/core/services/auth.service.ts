@@ -84,8 +84,10 @@ export class AuthService {
           this.currentUserSubject.next(res.data.user);
         }
       }),
-      catchError(error => {
-        console.error("register Error: ", error);
+      catchError((error: HttpErrorResponse) => {
+        console.error("❌ Error en register(): ", error);
+
+        // Siempre devolvemos el error para que el componente lo maneje
         return throwError(() => error);
       })
     )

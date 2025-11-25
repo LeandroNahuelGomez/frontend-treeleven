@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { Router, RouterModule, RouterOutlet } from '@angular/router'
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
@@ -23,6 +23,10 @@ export class Register {
   showSuccessModal = false;
   isLoading = false;
   errorMessage = "";
+
+  edadError = signal<string | null>(null);
+
+  serverError = signal<string | null>(null);
 
   // Opciones para los selectores
   months = [
@@ -65,7 +69,14 @@ export class Register {
       //Paso 2: Datos de la Cuenta
       userName: ['', [Validators.required, Validators.minLength(3), Validators.pattern('^[a-zA-Z0-9._]+$')]],
       description: ['', Validators.maxLength(500)],
-      password: ['', [Validators.required, Validators.minLength(6)]],
+      password: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(6),
+          Validators.pattern(/^(?=.*[A-Z])(?=.*\d).+$/)
+        ]
+      ],
       passwordConfirmation: ['', Validators.required],
       profileImageUrl: [null],
       profile: ['usuario']
@@ -116,10 +127,6 @@ export class Register {
   }
 
 
-
-
-
-
   // Navegar al siguiente paso
   nextStep(): void {
     if (this.currentStep === 1) {
@@ -138,10 +145,11 @@ export class Register {
         const edad = this.calcularEdad(fechaNacimiento);
 
         if (edad < 13) {
-          alert('Debes tener al menos 13 años para registrarte');
+          this.edadError.set('El usuario debe ser mayor de 13 años.');
           return;
+        } else {
+          this.edadError.set(null);
         }
-
         this.currentStep = 2;
       }
     }
@@ -253,28 +261,41 @@ export class Register {
     this.authService.register(formData).subscribe({
       next: (response) => {
         this.isLoading = false;
+
         if (response.success) {
           this.openSuccessModal();
+
+          // Redirigir solo si el registro fue exitoso
+          this.router.navigate(["/login"])
         }
       },
-      error: (error) => {
+      error: (err: any) => {
         this.isLoading = false;
-        console.error("Error en registro: ", error);
+        console.error("❌ Error en registro: ", err);
 
-        // Manejar diferentes tipos de error del backend
-        if (error.error?.message) {
-          this.errorMessage = error.error.message;
-        } else if (error.status === 409) {
-          this.errorMessage = 'El correo electrónico ya está registrado';
-        } else if (error.status === 400) {
-          this.errorMessage = 'El nombre de usuario ya está en uso';
-        } else {
-          this.errorMessage = 'Error en el registro. Intenta nuevamente.';
+        // Extraer mensaje del backend
+        let mensaje = "Error en el registro. Intenta nuevamente.";
+
+        // Caso 1: message existe en err.error
+        if (err.error?.message) {
+          if (typeof err.error.message === "string") {
+            mensaje = err.error.message;
+          } else if (Array.isArray(err.error.message)) {
+            mensaje = err.error.message[0];  // Mostrar primer mensaje
+          }
         }
-      }
-    })
+        // Caso 2: errores específicos (fallback)
+        else if (err.status === 409) {
+          mensaje = "El correo electrónico ya está registrado.";
+        }
+        else if (err.status === 400) {
+          mensaje = "Datos inválidos. Verifica tu información.";
+        }
 
-    this.router.navigate(["/login"])
+        this.serverError.set(mensaje);
+      },
+
+    })
   }
 
   calcularEdad(fechaNacimiento: Date): number {
@@ -302,6 +323,7 @@ export class Register {
   // Helper para obtener mensaje de error
   getErrorMessage(fieldName: string): string {
     const field = this.registerForm.get(fieldName);
+
     if (!field || (!field.touched && !this.submitted)) {
       return '';
     }
@@ -309,23 +331,36 @@ export class Register {
     if (field.hasError('required')) {
       return 'Este campo es obligatorio';
     }
+
     if (field.hasError('email')) {
       return 'Ingresa un correo válido';
     }
+
     if (field.hasError('minlength')) {
       const minLength = field.getError('minlength').requiredLength;
       return `Debe tener al menos ${minLength} caracteres`;
     }
+
     if (field.hasError('maxlength')) {
       const maxLength = field.getError('maxlength').requiredLength;
       return `No debe superar los ${maxLength} caracteres`;
     }
+
     if (field.hasError('pattern')) {
-      return 'Solo letras, números y guiones bajos';
+      // Mensajes personalizados según el campo
+      switch (fieldName) {
+        case 'userName':
+          return 'El nombre de usuario solo puede contener letras, números, puntos y guiones bajos';
+        case 'password':
+          return 'La contraseña debe incluir al menos 1 mayúscula y 1 número';
+        default:
+          return 'Formato inválido';
+      }
     }
 
     return '';
   }
+
 
   getPasswordMismatchError(): string {
     if (this.registerForm.hasError('passwordMismatch') &&
