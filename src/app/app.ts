@@ -14,21 +14,29 @@ import { SessionModalComponent } from './session-modal/session-modal';
 })
 export class App implements OnInit {
   protected readonly title = signal('frontend-treeleven');
-  isLoading = signal(true);
+  isLoading = signal(true); // ⬅️ IMPORTANTE
 
   constructor(
     private authService: AuthService,
+    private router: Router,
     public sessionService: SessionService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
+    // Verificamos sesión 1 vez al iniciar la app
+    this.verifySession();
+  }
 
-    // Solo para mostrar el spinner MIENTRAS authorize() resuelve la primera vez
+  private verifySession() {
+    // authorize() debe devolver un observable que COMPLETE (HTTP)
+    // y en next/error actualizamos isLoading. No hacemos navegación aquí.
     this.authService.authorize().subscribe({
-      next: () => {
+      next: (res) => {
+        // opcional: manejar estado del usuario en authService si lo necesitas
         this.isLoading.set(false);
       },
-      error: () => {
+      error: (err) => {
+        // si hay error (no autenticado) igualmente ocultamos el loading
         this.isLoading.set(false);
       }
     });
