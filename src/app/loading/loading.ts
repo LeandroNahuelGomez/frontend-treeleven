@@ -8,20 +8,6 @@ import { Router } from '@angular/router';
   templateUrl: './loading.html',
   styleUrl: './loading.css',
 })
-export class Loading implements OnInit {
-  constructor(
-    private authService: AuthService,
-    private router: Router
-  ) { }
-
-  ngOnInit() {
-    this.authService.authorize().subscribe(user => {
-      if (user) {
-        this.router.navigate(['/publicaciones']);
-      } else {
-        this.router.navigate(['/home']);
-      }
-    });
-  }
+export class Loading {
 
 }

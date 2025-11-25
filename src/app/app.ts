@@ -1,5 +1,5 @@
-import { Component, signal } from '@angular/core';
-import { RouterOutlet, Router} from '@angular/router';
+import { Component, OnInit, signal } from '@angular/core';
+import { RouterOutlet, Router } from '@angular/router';
 import { AuthService } from './core/services/auth.service';
 import { Loading } from './loading/loading';
 import { CommonModule } from '@angular/common';
@@ -12,8 +12,7 @@ import { SessionModalComponent } from './session-modal/session-modal';
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
-export class App {
-  
+export class App implements OnInit {
   protected readonly title = signal('frontend-treeleven');
   isLoading = signal(true); // ⬅️ IMPORTANTE
 
@@ -21,17 +20,30 @@ export class App {
     private authService: AuthService,
     private router: Router,
     public sessionService: SessionService
-  ) {
+  ) { }
+
+  ngOnInit(): void {
+    // Verificamos sesión 1 vez al iniciar la app
     this.verifySession();
   }
 
   verifySession() {
-    //Solo llamamos al servicio y desactiva el loading
-    //El servicio se encarga de actualizar el estado de autenticacion
     this.authService.authorize().subscribe({
-      next: () => this.isLoading.set(false),
-      error: () => this.isLoading.set(false)
-    })
+      next: (user) => {
+        this.isLoading.set(false);
 
+        if (user) {
+          // ⬅️ SOLO redirige si ESTÁS EN /home o en la raíz
+          if (this.router.url === '/' || this.router.url === '/home') {
+            this.router.navigate(['/publicaciones']);
+          }
+        }
+      },
+      error: () => {
+        this.isLoading.set(false);
+        // no navegamos, el guard se encarga
+      }
+    });
   }
+
 }

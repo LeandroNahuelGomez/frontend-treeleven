@@ -1,8 +1,19 @@
 <div class="app-container">
-  <!-- Deberia implementar el spinner mientras carga la aplicacion -->
+  <!-- Spinner mientras la aplicación verifica la sesión -->
   <app-loading *ngIf="isLoading()"></app-loading>
-  <router-outlet *ngIf="!isLoading()"></router-outlet>
+
+  <!-- <router-outlet *ngIf="!isLoading()"></router-outlet>
   <app-session-modal *ngIf="sessionService.showSessionModal()" (extend)="sessionService.extendSession()"
     (logout)="sessionService.forceLogout()">
-  </app-session-modal>
+  </app-session-modal> -->
+
+  <!-- Una vez que terminó el loading mostramos el router -->
+  <ng-container *ngIf="!isLoading()">
+    <router-outlet></router-outlet>
+
+    <!-- Modal de sesión (se muestra sólo si el servicio lo indica) -->
+    <app-session-modal *ngIf="sessionService.showSessionModal()" (extend)="sessionService.extendSession()"
+      (logout)="sessionService.forceLogout()">
+    </app-session-modal>
+  </ng-container>
 </div>
