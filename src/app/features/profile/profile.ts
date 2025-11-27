@@ -4,40 +4,34 @@ import { Navbar } from '../../shared/navbar/navbar';
 import { PublicationCardComponent } from '../../publication-card/publication-card';
 import { User, UsersService } from '../../core/services/user.service';
 import { PublicationsService } from '../../core/services/publications.service';
+import { Publication, PublicationsResponse } from '../../shared/models/publication.model';
 
 export interface ProfileData {
+  _id: string;
   name: string;
+  lastName: string;
+  userName: string;
   email: string;
   description: string;
   profileImageUrl: string;
   birthDate: string;
-  lastPublicications: Publication[];
+  lastPublications: Publication[];
+  profile: string;
 }
 
-export interface Publication {
+interface PostAuthor {
   _id: string;
-  title: string;
-  description: string;
-  createdAt: string;
-  likesCount: number;
-  commentsCount: number;
-  comments: Comment[];
-  imageUrl?: string;
-  userLiked?: boolean,
-}
-
-export interface Comment {
-  _id: string;
-  text: string;
-  author: string;
-  createdAt: string;
+  name: string;
+  lastName: string;
+  userName: string;
+  profileImageUrl?: string;
 }
 
 
 @Component({
   selector: 'app-profile',
-  imports: [CommonModule, Navbar],
-  templateUrl: './pruebaProfile.html',
+  imports: [CommonModule, Navbar, PublicationCardComponent],
+  templateUrl: './profile.html',
   styleUrl: './pruebaProfile.css',
 })
 
@@ -47,19 +41,21 @@ export class Profile implements OnInit {
   error = signal<string | null>(null);
 
   constructor(
-    private userService: UsersService
-  ){}
+    private userService: UsersService,
+    private publicationsService: PublicationsService
+  ) { }
 
   ngOnInit(): void {
     this.loadProfile();
   }
 
-  loadProfile(): void{
+  loadProfile(): void {
     this.userService.getMyProfile().subscribe({
       next: (res) => {
         this.user.set(res.data)
+        console.log("El id del usuario es: ", res.data._id, " deberia ser: 69253df2853503866f6a8816")
+        console.log(res.data.profile)
         this.isLoading.set(false);
-        console.log(res.data);
       },
       error: (err) => {
         this.error.set('No se pudo cargar el perfil.');
@@ -68,73 +64,109 @@ export class Profile implements OnInit {
       }
     })
   }
- 
 
-  // handleLikeToggle(publicationId: string): void {
-  //   const publication = this.publications.find(p => p._id === publicationId);
-  //   if (!publication) return;
-
-  //   const action = publication.userLiked
-  //     ? this.publicationsService.removeLike(publicationId)
-  //     : this.publicationsService.giveLike(publicationId);
-
-  //   action.subscribe({
-  //     next: () => {
-  //       publication.userLiked = !publication.userLiked;
-  //       publication.numberLikes += publication.userLiked ? 1 : -1;
-  //     }
-  //   });
-  // }
-
-  // handleDelete(publicationId: string): void {
-  //   this.publications = this.publications.filter(p => p._id !== publicationId);
-  // }
-
-  // getAge(birthDate: Date): number {
-  //   const today = new Date();
-  //   const birth = new Date(birthDate);
-  //   let age = today.getFullYear() - birth.getFullYear();
-  //   const monthDiff = today.getMonth() - birth.getMonth();
-
-  //   if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
-  //     age--;
-  //   }
-
-  //   return age;
-  // }
-
-  // publicaciones: Publicacion[] = [
-  //   {
-  //     id: 1,
-  //     contenido: "¡Acabo de terminar mi proyecto de Angular! Fue un desafío increíble pero aprendí muchísimo sobre componentes y servicios.",
-  //     fecha: "Hace 2 días",
-  //     likes: 24,
-  //     comentarios: [
-  //       { autor: "Carlos López", texto: "¡Felicitaciones! Se ve genial" },
-  //       { autor: "María Rodríguez", texto: "Excelente trabajo, me inspira a seguir aprendiendo" }
-  //     ]
-  //   },
-  //   {
-  //     id: 2,
-  //     contenido: "Explorando las nuevas características de CSS Grid. Es impresionante lo que se puede lograr con layouts modernos.",
-  //     fecha: "Hace 5 días",
-  //     likes: 18,
-  //     comentarios: [
-  //       { autor: "Juan Pérez", texto: "CSS Grid es lo mejor que le pasó al desarrollo web" }
-  //     ]
-  //   },
-  //   {
-  //     id: 3,
-  //     contenido: "Compartiendo mi experiencia con TypeScript. Al principio fue difícil, pero ahora no puedo imaginar trabajar sin él.",
-  //     fecha: "Hace 1 semana",
-  //     likes: 31,
-  //     comentarios: [
-  //       { autor: "Laura Martínez", texto: "Totalmente de acuerdo, TypeScript mejora mucho la calidad del código" },
-  //       { autor: "Pedro Sánchez", texto: "¿Algún recurso que recomiendes para empezar?" },
-  //       { autor: "Ana García", texto: "Te recomiendo la documentación oficial y los ejercicios de TypeScript Exercises" }
-  //     ]
-  //   }
-  // ];
+  toggleUserRole(): void {
+    const userId = this.user()?._id;
+    console.log("El id del usuario es: ", userId)
+    if (!userId) {
+      alert("No se pudo identificar al usuario");
+      return
+    }
+    this.userService.toggleUserRole(userId).subscribe({
+      next: (res) => {
+        console.log("ROL ACTUALIZADO", res.data.newRole)
+        this.user.update(current => {
+          if (!current) return current;
+          return {
+            ...current,
+            profile: res.data.newRole as "usuario" | "administrador"
+          }
+        });
+        alert(`Rol cambiado a: ${res.data.newRole}`);
+      },
+      error: (err) => {
+        console.error('❌ Error al cambiar el rol:', err);
+        alert('No se pudo cambiar el rol del usuario');
+      }
+    })
+  }
 
 
+  // Manejar like/unlike
+  handleLikeToggle(publicationId: string): void {
+    const publications = this.user()?.lastPublications;
+    if (!publications) return;
+
+    const publication = publications.find(p => p._id === publicationId);
+    if (!publication) return;
+
+    const action = publication.userLiked
+      ? this.publicationsService.removeLike(publicationId)
+      : this.publicationsService.giveLike(publicationId);
+
+    action.subscribe({
+      next: () => {
+        // Actualizar el estado localmente
+        publication.userLiked = !publication.userLiked;
+        publication.numberLikes += publication.userLiked ? 1 : -1;
+      },
+      error: (err) => {
+        console.error('Error al dar/quitar like:', err);
+      }
+    });
+  }
+
+  // Manejar eliminación de publicación
+  handleDelete(publicationId: string): void {
+    if (!confirm('¿Estás seguro de que deseas eliminar esta publicación?')) {
+      return;
+    }
+
+    this.publicationsService.deletePublication(publicationId).subscribe({
+      next: () => {
+        // Eliminar de la lista local
+        this.user.update(current => {
+          if (!current) return current;
+          return {
+            ...current,
+            lastPublications: current.lastPublications.filter(p => p._id !== publicationId)
+          };
+        });
+        console.log('✅ Publicación eliminada');
+      },
+      error: (err) => {
+        console.error('❌ Error al eliminar publicación:', err);
+        alert('No se pudo eliminar la publicación');
+      }
+    });
+  }
+
+  // Calcular edad desde fecha de nacimiento
+  getAge(birthDate: string): number {
+    const today = new Date();
+    const birth = new Date(birthDate);
+    let age = today.getFullYear() - birth.getFullYear();
+    const monthDiff = today.getMonth() - birth.getMonth();
+
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+      age--;
+    }
+
+    return age;
+  }
+
+  // Formatear fecha de nacimiento
+  formatBirthDate(birthDate: string): string {
+    const date = new Date(birthDate);
+    return date.toLocaleDateString('es-ES', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    });
+  }
 }
+
+
+
+
+

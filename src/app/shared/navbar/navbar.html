@@ -4,14 +4,19 @@
     <img src="assets/img/TextoRedSocial2.png" alt="Logotipo de la marca TreeLeven" class="logo">
   </div>
 
-  <!-- Menu Items -->
+
+  <!-- Menu Items de ESCRITORIO -->
   <nav class="navbar-menu">
-    <div *ngFor="let item of menuItems" class="navbar-item" [class.active]="activeItem === item.id"
-      (click)="handleMenuItemClick(item)">
+    <!-- Usamos finalMenuItems, que ya contiene solo los ítems del rol actual -->
+    <div *ngFor="let item of finalMenuItems()"
+        class="navbar-item"
+        [class.active]="activeItem === item.id"
+        (click)="handleMenuItemClick(item)">
       <span class="material-icons navbar-icon">{{item.icon}}</span>
       <span class="navbar-label">{{item.label}}</span>
     </div>
   </nav>
+
 
   <!-- Footer (Más opciones) -->
   <div class="navbar-footer">
@@ -21,14 +26,16 @@
     </div>
   </div>
 
-    <!-- Navbar Mobile -->
+
+  <!-- Navbar MOBILE -->
   <div class="navbar-mobile">
-    <div *ngFor="let item of mobileMenuItems" 
+    <!-- Usamos finalMobileMenuItems, que ya contiene solo los ítems del rol actual -->
+    <div *ngFor="let item of finalMobileMenuItems()"
          class="navbar-mobile-item"
          [class.active]="activeItem === item.id"
          (click)="handleMenuItemClick(item)">
       <span class="material-icons">{{item.icon}}</span>
     </div>
   </div>
-
 </div>
+

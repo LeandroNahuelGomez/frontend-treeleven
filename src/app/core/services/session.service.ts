@@ -13,13 +13,12 @@ export class SessionService {
     private expirationTimer!: any;
     private countdownInterval!: any;
 
-    // private readonly WARNING_TIME = 10 * 60; // 10 min
-    // private readonly EXPIRATION_TIME = 15 * 60; // 15 min
+    private readonly WARNING_TIME = 10 * 60; // 10 min
+    private readonly EXPIRATION_TIME = 15 * 60; // 15 min
 
     //Variables para debugging
-    private readonly WARNING_TIME = 10 * 60;  // 10 segundos
-    private readonly EXPIRATION_TIME = 15 * 60; // 15 segundos
-
+    // private readonly WARNING_TIME = 20;  // 20 segundos
+    // private readonly EXPIRATION_TIME = 30; // 30 segundos
 
     constructor(private auth: AuthService) { }
 

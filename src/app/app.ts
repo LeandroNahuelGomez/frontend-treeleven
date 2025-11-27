@@ -34,11 +34,13 @@ export class App implements OnInit {
       next: (res) => {
         // opcional: manejar estado del usuario en authService si lo necesitas
         this.isLoading.set(false);
+        // this.sessionService.startSessionTimers();
       },
       error: (err) => {
         // si hay error (no autenticado) igualmente ocultamos el loading
         this.isLoading.set(false);
       }
     });
+
   }
 }

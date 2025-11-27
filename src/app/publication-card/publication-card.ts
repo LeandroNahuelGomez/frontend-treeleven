@@ -9,6 +9,7 @@ import { CommentsService } from '../core/services/comment.service';
 import { flush } from '@angular/core/testing';
 import { Comment } from '../shared/models/comment.model';
 import { Router } from '@angular/router';
+import { TimeAgoPipe } from '../core/pipes/time-ago-pipe';
 
 export interface CommentAuthor {
   _id: string;
@@ -30,7 +31,7 @@ export interface CommentResponse {
 @Component({
   selector: 'app-publication-card',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TimeAgoPipe],
   templateUrl: './publication-card.html',
   styleUrls: ['./publication-card.css']
 })
@@ -81,6 +82,7 @@ export class PublicationCardComponent {
   }
 
   get canDelete(): boolean {
+    console.log("El id es:", this.publication._id)
     console.log("Es mi post? ", this.isMyPost)
     console.log("Es admin?", this.authService.isAdmin())
     return this.isMyPost || this.authService.isAdmin();

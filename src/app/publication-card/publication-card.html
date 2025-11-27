@@ -83,7 +83,7 @@
                 {{ comment.author.name }} {{ comment.author.lastName }}
               </span>
               <span class="comment-time">
-                {{ getTimeAgo(comment.createdAt) }}
+                {{ comment.createdAt | timeAgo }}
                 <span *ngIf="comment.edited" class="edited-badge">(editado)</span>
               </span>
             </div>

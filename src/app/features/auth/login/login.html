@@ -34,7 +34,7 @@
 
         <div class="input-content">
           <label for="identificator">Correo o nombre de usuario</label>
-          <input type="text" id="identificator" formControlName="identificator"
+          <input type="text" id="identificator" appAutoFocusDirective formControlName="identificator"
             placeholder="Ingresa tu correo o usuario" autocomplete="username"
             [class.input-error]="hasError('identificator', 'required') || hasError('identificator', 'minlength')">
           <span class="error-message" *ngIf="getIdentificatorErrorMessage()">

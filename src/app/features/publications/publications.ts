@@ -52,8 +52,6 @@ export class Publications implements OnInit {
       this.publications.set([]); //Usamos set() en lugar de asignacion
     }
 
-
-
     this.loading.set(true);
 
     this.publicationsService.getPublications(this.orderBy, this.offset, this.limit)

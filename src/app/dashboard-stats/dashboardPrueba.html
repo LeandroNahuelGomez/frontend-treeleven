@@ -1,0 +1,159 @@
+<div class="dashboard-main-layout">
+    <app-navbar></app-navbar>
+
+    <section class="dashboard-container">
+
+        <div class="dashboard-content">
+            <!-- Header -->
+            <div class="dashboard-header">
+                <div>
+                    <h1 class="dashboard-title">{{"Estadísticas" | cleanTextPipe: 'upper'}}</h1>
+                    <p class="dashboard-subtitle">Análisis y métricas de la plataforma</p>
+                </div>
+            </div>
+
+            <!-- Overview Cards -->
+            <div class="overview-cards" *ngIf="overview()">
+                <div class="card-stat">
+                    <div class="card-icon users">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                            <circle cx="9" cy="7" r="4" />
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                        </svg>
+                    </div>
+                    <div class="card-info">
+                        <h3>{{ overview().totalUsers }}</h3>
+                        <p>Usuarios Activos</p>
+                    </div>
+                </div>
+
+                <div class="card-stat">
+                    <div class="card-icon publications">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                            <polyline points="14 2 14 8 20 8" />
+                        </svg>
+                    </div>
+                    <div class="card-info">
+                        <h3>{{ overview().totalPublications }}</h3>
+                        <p>Publicaciones Totales</p>
+                        <span class="badge">+{{ overview().last30Days.publications }} últimos 30 días</span>
+                    </div>
+                </div>
+
+                <div class="card-stat">
+                    <div class="card-icon comments">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                        </svg>
+                    </div>
+                    <div class="card-info">
+                        <h3>{{ overview().totalComments }}</h3>
+                        <p>Comentarios Totales</p>
+                        <span class="badge">+{{ overview().last30Days.comments }} últimos 30 días</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chart 1: Publicaciones por Usuario (Barras) -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h2>Publicaciones por Usuario</h2>
+                    <form [formGroup]="publicationsForm" class="date-form">
+                        <div class="date-inputs">
+                            <input type="date" formControlName="startDate" class="date-input">
+                            <span>hasta</span>
+                            <input type="date" formControlName="endDate" class="date-input">
+                            <button type="button" (click)="loadPublicationsByUser()" class="btn-apply">
+                                Aplicar
+                            </button>
+                        </div>
+                        <div class="quick-filters">
+                            <button type="button" (click)="setLast7Days('publications')" class="btn-filter">7
+                                días</button>
+                            <button type="button" (click)="setLast30Days('publications')" class="btn-filter">30
+                                días</button>
+                            <button type="button" (click)="setLast90Days('publications')" class="btn-filter">90
+                                días</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas #publicationsByUserChart></canvas>
+                </div>
+            </div>
+
+            <!-- Chart 2: Comentarios por Período (Línea) -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h2>Comentarios por Día</h2>
+                    <form [formGroup]="commentsForm" class="date-form">
+                        <div class="date-inputs">
+                            <input type="date" formControlName="startDate" class="date-input">
+                            <span>hasta</span>
+                            <input type="date" formControlName="endDate" class="date-input">
+                            <button type="button" (click)="loadCommentsByPeriod()" class="btn-apply">
+                                Aplicar
+                            </button>
+                        </div>
+                        <div class="quick-filters">
+                            <button type="button" (click)="setLast7Days('comments')" class="btn-filter">7 días</button>
+                            <button type="button" (click)="setLast30Days('comments')" class="btn-filter">30
+                                días</button>
+                            <button type="button" (click)="setLast90Days('comments')" class="btn-filter">90
+                                días</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas #commentsByPeriodChart></canvas>
+                </div>
+            </div>
+
+            <!-- Chart 3: Comentarios por Publicación (Torta) -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h2>Top Publicaciones con más Comentarios</h2>
+                    <form [formGroup]="commentsByPubForm" class="date-form">
+                        <div class="date-inputs">
+                            <input type="date" formControlName="startDate" class="date-input">
+                            <span>hasta</span>
+                            <input type="date" formControlName="endDate" class="date-input">
+                            <button type="button" (click)="loadCommentsByPublication()" class="btn-apply">
+                                Aplicar
+                            </button>
+                        </div>
+                        <div class="quick-filters">
+                            <button type="button" (click)="setLast7Days('commentsByPub')" class="btn-filter">7
+                                días</button>
+                            <button type="button" (click)="setLast30Days('commentsByPub')" class="btn-filter">30
+                                días</button>
+                            <button type="button" (click)="setLast90Days('commentsByPub')" class="btn-filter">90
+                                días</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas #commentsByPublicationChart></canvas>
+                </div>
+            </div>
+
+            <!-- Loading Overlay -->
+            <div *ngIf="isLoading()" class="loading-overlay">
+                <div class="spinner"></div>
+                <p>Cargando estadísticas...</p>
+            </div>
+
+            <!-- Error Message -->
+            <div *ngIf="error()" class="alert alert-error">
+                {{ error() }}
+            </div>
+        </div>
+    </section>
+
+</div>

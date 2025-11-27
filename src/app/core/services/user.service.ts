@@ -11,7 +11,7 @@ export interface User {
   userName: string;
   birthDate: Date;
   description?: string;
-  profilePictureUrl?: string;
+  profileImageUrl?: string;
   cloudinaryPublicId?: string;
   profile?: string;
   active?: boolean;
@@ -41,6 +41,13 @@ export interface UpdateUserDto {
   profile?: string;
   active?: boolean;
 }
+
+export interface UsersResponse {
+  success: boolean;
+  message: string;
+  data: User[];
+}
+
 
 @Injectable({
   providedIn: 'root'
@@ -79,9 +86,9 @@ export class UsersService {
   }
 
   // Obtener todos los usuarios
-  getAllUsers(): Observable<User[]> {
-    return this.http.get<User[]>(this.apiUrl);
-  }
+  // getAllUsers(): Observable<User[]> {
+  //   return this.http.get<User[]>(this.apiUrl);
+  // }
 
   // Buscar usuario por email o username
   findByIdentificator(identificator: string): Observable<User> {
@@ -113,9 +120,9 @@ export class UsersService {
     return this.http.delete<{ message: string }>(`${this.apiUrl}/${id}`);
   }
 
-  getMyProfile(): Observable<{success: boolean; data:ProfileData}> {
-    return this.http.get<{success: boolean; data: ProfileData}>(`${this.apiUrl}/profile`,
-      {withCredentials: true}
+  getMyProfile(): Observable<{ success: boolean; data: ProfileData }> {
+    return this.http.get<{ success: boolean; data: ProfileData }>(`${this.apiUrl}/profile`,
+      { withCredentials: true }
     )
   }
 
@@ -138,4 +145,62 @@ export class UsersService {
 
     return this.http.put<any>(`${this.apiUrl}/profile`, formData);
   }
+
+  // ========== ENDPOINTS DE ADMINISTRADOR ==========
+
+  /**
+   * Listar todos los usuarios (incluidos deshabilitados)
+   * Solo para administradores
+   */
+  getAllUsers(): Observable<UsersResponse> {
+    return this.http.get<UsersResponse>(`${this.apiUrl}/admin/list`, {withCredentials: true});
+  }
+
+  /**
+   * Crear usuario como administrador
+   * FormData debe incluir: name, lastName, email, userName, password,
+   * birthDate, description, role, profilePicture (opcional)
+   */
+  createUserByAdmin(formData: FormData): Observable<User> {
+    return this.http.post<User>(
+      `${this.apiUrl}/admin/create`,
+      formData,
+      {withCredentials: true}
+    );
+  }
+
+  /**
+   * Deshabilitar usuario (baja lógica)
+   */
+  disableUser(userId: string): Observable<{ message: string }> {
+    return this.http.delete<{ message: string }>(
+      `${this.apiUrl}/admin/disable/${userId}`,
+      {withCredentials: true}
+    );
+  }
+
+  /**
+   * Habilitar usuario (alta lógica)
+   */
+  enableUser(userId: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(
+      `${this.apiUrl}/admin/enable/${userId}`,
+      {},
+      {withCredentials: true}
+    );
+  }
+
+  /**
+   * Toggle rol usuario/administrador
+   */
+  toggleUserRole(userId: string): Observable<{ message: string; data: { newRole: string } }> {
+    return this.http.post<{ message: string; data: { newRole: string } }>(
+      `${this.apiUrl}/admin/toggle-role/${userId}`,
+      {},
+      { withCredentials: true }
+    );
+  }
+
+
+
 }

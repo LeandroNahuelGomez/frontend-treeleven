@@ -1,89 +1,121 @@
-
 <section>
-   <div class="perfil-container">
-  <div class="perfil-wrapper">
+  <!-- Navbar -->
+  <app-navbar></app-navbar>
 
-    <!-- Sección de información del usuario -->
-    <div class="usuario-card" *ngIf="user">
-      <div class="usuario-content">
+  <div class="perfil-container">
+    <div class="perfil-wrapper">
 
-        <!-- Foto de perfil -->
-        <div class="foto-perfil">
-          <img [src]="user.profilePictureUrl" [alt]="user.name">
-        </div>
-
-        <!-- Información básica -->
-        <div class="usuario-info">
-          <h1 class="usuario-nombre">{{ user.name }}</h1>
-          <p class="usuario-bio">{{ user.description }}</p>
-
-          <!-- Detalles del usuario -->
-          <div class="usuario-detalles">
-            <div class="detalle-item">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect width="20" height="16" x="2" y="4" rx="2"/>
-                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
-              </svg>
-              <span>{{ user.email }}</span>
-            </div>
-            <div class="detalle-item">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/>
-                <line x1="16" x2="16" y1="2" y2="6"/>
-                <line x1="8" x2="8" y1="2" y2="6"/>
-                <line x1="3" x2="21" y1="10" y2="10"/>
-              </svg>
-              <span>Miembro desde {{ user.birthDate}}</span>
-            </div>
-            <div class="detalle-item">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
-                <circle cx="12" cy="10" r="3"/>
-              </svg>
-              <!-- <span>{{ usuario.ubicacion }}</span> -->
-            </div>
-          </div>
-        </div>
+      <!-- Loading State -->
+      <div *ngIf="isLoading()" class="loading-state">
+        <div class="loading-spinner"></div>
+        <p>Cargando perfil...</p>
       </div>
-    </div>
 
-    <!-- Sección de publicaciones -->
-    <div class="publicaciones-section">
-      <h2 class="publicaciones-titulo">Mis Últimas Publicaciones</h2>
+      <!-- Error State -->
+      <div *ngIf="error() && !isLoading()" class="error-state">
+        <p>{{ error() }}</p>
+        <button (click)="loadProfile()" class="retry-button">Reintentar</button>
+      </div>
 
-      <div class="publicaciones-lista">
-        <div *ngFor="let pub of publications" class="publicacion-card">
-          <!-- Contenido de la publicación -->
-          <p class="publicacion-contenido">{{ pub.body }}</p>
+      <!-- Contenido del perfil -->
+      <ng-container *ngIf="user() && !isLoading()">
 
-          <!-- Metadata de la publicación -->
-          <div class="publicacion-metadata">
-            <span class="publicacion-fecha">{{ pub.createdAt }}</span>
-            <div class="metadata-item">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
-              </svg>
-              <span>{{ pub.likesCount }}</span>
+        <!-- Sección de información del usuario -->
+        <div class="usuario-card">
+          <div class="usuario-content">
+
+            <!-- Foto de perfil -->
+            <div class="foto-perfil">
+              <img [src]="user()?.profileImageUrl" [alt]="user()?.name"
+                onerror="this.src='https://via.placeholder.com/120x120?text=Usuario'">
+              <!-- Opcional: Botón para cambiar foto -->
+              <!-- <button class="btn-change-photo" title="Cambiar foto">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                  <circle cx="12" cy="13" r="4"/>
+                </svg>
+              </button> -->
             </div>
-            <div class="metadata-item">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-              </svg>
-              <span>{{ pub.coments.length }}</span>
-            </div>
-          </div>
 
-          <!-- Comentarios -->
-          <div class="comentarios-section">
-            <h4 class="comentarios-titulo">Comentarios:</h4>
-            <div *ngFor="let comentario of pub.comentarios" class="comentario-item">
-              <strong class="comentario-autor">{{ comentario.autor }}</strong>
-              <p class="comentario-texto">{{ comentario.texto }}</p>
+            <!-- Información básica -->
+            <div class="usuario-info">
+              <h1 class="usuario-nombre">
+                {{ user()?.name }} {{ user()?.lastName }}
+              </h1>
+              <p class="usuario-username">@{{ user()?.userName }}</p>
+              <p class="usuario-bio">{{ user()?.description || 'Sin descripción' }}</p>
+
+              <!-- Detalles del usuario -->
+              <div class="usuario-detalles">
+                <div class="detalle-item">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect width="20" height="16" x="2" y="4" rx="2" />
+                    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                  </svg>
+                  <span>{{ user()?.email }}</span>
+                </div>
+
+                <div class="detalle-item">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect width="18" height="18" x="3" y="4" rx="2" ry="2" />
+                    <line x1="16" x2="16" y1="2" y2="6" />
+                    <line x1="8" x2="8" y1="2" y2="6" />
+                    <line x1="3" x2="21" y1="10" y2="10" />
+                  </svg>
+                  <span>{{ formatBirthDate(user()!.birthDate) }} ({{ getAge(user()!.birthDate) }} años)</span>
+                </div>
+              </div>
+
+              <!-- Botón para cambiar rol (solo visible si el usuario actual es admin) -->
+              <div class="admin-actions">
+                <button class="btn-toggle-role" (click)="toggleUserRole()">
+                  Cambiar rol a {{ user()?.profile === 'administrador' ? 'usuario' : 'administrador' }}
+                </button>
+              </div>
+
+              <!-- Opcional: Botón de editar perfil -->
+              <!-- <button class="btn-edit-profile">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                </svg>
+                Editar perfil
+              </button> -->
             </div>
           </div>
         </div>
-      </div>
+
+        <!-- Sección de publicaciones -->
+        <div class="publicaciones-section">
+          <h2 class="publicaciones-titulo">
+            Mis Últimas Publicaciones
+            <span class="publicaciones-count">({{ user()?.lastPublications?.length || 0 }})</span>
+          </h2>
+
+          <!-- Mensaje cuando no hay publicaciones -->
+          <div *ngIf="!user()?.lastPublications || user()!.lastPublications.length === 0" class="no-publicaciones">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+              <polyline points="14 2 14 8 20 8" />
+              <line x1="12" x2="12" y1="18" y2="12" />
+              <line x1="9" x2="15" y1="15" y2="15" />
+            </svg>
+            <p>Aún no has realizado ninguna publicación</p>
+            <p class="no-publicaciones-subtitle">¡Comparte algo con la comunidad!</p>
+          </div>
+
+          <!-- Lista de publicaciones usando el componente reutilizable -->
+          <div class="publicaciones-lista" *ngIf="user()?.lastPublications && user()!.lastPublications.length > 0">
+            <app-publication-card *ngFor="let publication of user()!.lastPublications" [publication]="publication"
+              (likeToggle)="handleLikeToggle($event)" (delete)="handleDelete($event)">
+            </app-publication-card>
+          </div>
+        </div>
+
+      </ng-container>
     </div>
   </div>
-</div>
 </section>

@@ -1,5 +1,5 @@
 
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal, computed } from '@angular/core';
 import { Router, RouterLink, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../core/services/auth.service';
@@ -20,12 +20,16 @@ interface MenuItem {
 })
 export class Navbar {
   activeItem: string = 'inicio';
+  isAdmin = signal(false);
 
   private router = inject(Router);
 
   constructor(
     private authService: AuthService
-  ){}
+  ) {
+    const isAdmin = this.authService.isAdmin()
+    this.isAdmin.set(isAdmin);
+  }
 
   menuItems: MenuItem[] = [
     { id: 'inicio', icon: 'home', label: 'Inicio', route: '/home' },
@@ -33,7 +37,15 @@ export class Navbar {
     // { id: 'mensajes', icon: 'send', label: 'Mensajes', route: '/messages' },
     // { id: 'crear', icon: 'add_box', label: 'Crear', route: '/create' },
     { id: 'perfil', icon: 'person', label: 'Perfil', route: '/profile' },
-    // { id: 'guardados', icon: 'bookmark', label: 'Guardados', route: '/saved' },
+    { id: 'guardados', icon: 'bookmark', label: 'Guardados', route: '/saved' },
+    { id: 'logout', icon: 'logout', label: 'Logout', route: '/logout' }
+  ];
+
+  adminMenuItems: MenuItem[] = [ // <-- NUEVO: Ítems solo para administradores
+    { id: 'inicio', icon: 'home', label: 'Inicio', route: '/home' },
+    { id: 'perfil', icon: 'person', label: 'Perfil', route: '/profile' },
+    { id: 'dashboard-admin', icon: 'admin_panel_settings', label: 'Dashboard', route: '/dashboard-user' },
+    { id: 'stats', icon: 'bar_chart', label: 'Estadísticas', route: '/dashboard-stats' },
     { id: 'logout', icon: 'logout', label: 'Logout', route: '/logout' }
   ];
 
@@ -41,10 +53,31 @@ export class Navbar {
   mobileMenuItems: MenuItem[] = [
     { id: 'inicio', icon: 'home', label: 'Inicio', route: '/home' },
     { id: 'buscar', icon: 'search', label: 'Buscar', route: '/search' },
-    { id: 'crear', icon: 'add_box', label: 'Crear', route: '/create' },
-    { id: 'mensajes', icon: 'send', label: 'Mensajes', route: '/messages' },
-    { id: 'perfil', icon: 'person', label: 'Perfil', route: '/profile' }
+    // { id: 'mensajes', icon: 'send', label: 'Mensajes', route: '/messages' },
+    { id: 'perfil', icon: 'person', label: 'Perfil', route: '/profile' },
+    { id: 'logout', icon: 'logout', label: 'Logout', route: '/logout' }
   ];
+
+  adminMobileMenuItems: MenuItem[] = [
+    { id: 'inicio', icon: 'home', label: 'Inicio', route: '/home' },
+    { id: 'perfil', icon: 'person', label: 'Perfil', route: '/profile' },
+    { id: 'dashboard-admin', icon: 'admin_panel_settings', label: 'Dashboard', route: '/dashboard-user' },
+    { id: 'stats', icon: 'bar_chart', label: 'Estadísticas', route: '/dashboard-stats' },
+    { id: 'logout', icon: 'logout', label: 'Logout', route: '/logout' }
+  ];
+
+  // COMPUTED: Determina qué lista de menú de escritorio mostrar
+  finalMenuItems = computed(() => {
+    // Si isAdmin() es true, usa la lista completa de admin. Si no, usa la estándar.
+    return this.isAdmin() ? this.adminMenuItems : this.menuItems;
+  });
+
+
+  // COMPUTED: Determina qué lista de menú móvil mostrar
+  finalMobileMenuItems = computed(() => {
+    return this.isAdmin() ? this.adminMobileMenuItems : this.mobileMenuItems;
+  });
+
 
   handleMenuItemClick(item: MenuItem): void {
     // Actualizar item activo
@@ -73,6 +106,12 @@ export class Navbar {
       case 'guardados':
         this.showSavedItems();
         break;
+      case 'dashboard-admin':
+        this.dashboardAdmin();
+        break;
+      case 'dashboard-stats':
+        this.dashboardStats();
+        break;
       case 'logout':
         this.logout()
         break;
@@ -81,20 +120,30 @@ export class Navbar {
     }
   }
 
+  dashboardStats() {
+    console.log("Navegando al dashboard stats")
+    this.router.navigate(['/dashboard-stats']);
+  }
+
+  dashboardAdmin() {
+    console.log("Navegando al dashboard users")
+    this.router.navigate(['/dashboard-user']);
+  }
+
   private logout(): void {
-  this.authService.logout().subscribe({
-    next: res => {
-      console.log('Logout completado:', res);
-      // Redirigir al login después del logout
-      this.router.navigate(['/login']);
-    },
-    error: err => {
-      console.error('Error en logout:', err);
-      // Redirigir al login aunque haya error
-      this.router.navigate(['/login']);
-    }
-  });
-}
+    this.authService.logout().subscribe({
+      next: res => {
+        console.log('Logout completado:', res);
+        // Redirigir al login después del logout
+        this.router.navigate(['/login']);
+      },
+      error: err => {
+        console.error('Error en logout:', err);
+        // Redirigir al login aunque haya error
+        this.router.navigate(['/login']);
+      }
+    });
+  }
 
   private goToPublications(): void {
     console.log('Navegando al inicio');
@@ -107,6 +156,7 @@ export class Navbar {
 
   private openMessages(): void {
     console.log('Abriendo mensajes');
+    this.router.navigate(['/dashboard-user'])
   }
 
   private showNotifications(): void {
@@ -125,6 +175,7 @@ export class Navbar {
 
   private showSavedItems(): void {
     console.log('Mostrando items guardados');
+    this.router.navigate(['/dashboard-stats'])
     // this.router.navigate(['/saved']);
   }
 
