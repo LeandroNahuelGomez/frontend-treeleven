@@ -204,7 +204,6 @@ export class DashboardUser implements OnInit {
       }
     });
 
-
     // Agregar imagen si existe
     if (this.selectedFile) {
       formData.append('profilePicture', this.selectedFile);

@@ -110,4 +110,5 @@ export class StatisticsService {
       {withCredentials: true}
     );
   }
+
 }

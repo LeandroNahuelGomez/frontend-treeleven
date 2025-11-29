@@ -1,4 +1,4 @@
-import { Component, computed, OnInit, signal } from '@angular/core';
+import { Component, computed, OnDestroy, OnInit, signal } from '@angular/core';
 import { Navbar } from '../../shared/navbar/navbar';
 import { CommonModule } from '@angular/common';
 import { PublicationCardComponent } from '../../publication-card/publication-card';
@@ -6,18 +6,19 @@ import { FormsModule } from '@angular/forms';
 import { Publication } from '../../shared/models/publication.model';
 import { OrderPublications, PublicationsService } from '../../core/services/publications.service';
 import Swal from 'sweetalert2';
+import { InfiniteScrollDirective } from '../../core/directives/infinite-scroll-directive';
 
 @Component({
   selector: 'app-publications',
   standalone: true,
-  imports: [Navbar, CommonModule, PublicationCardComponent, FormsModule],
+  imports: [Navbar, CommonModule, PublicationCardComponent, FormsModule, InfiniteScrollDirective],
   templateUrl: './publications.html',
   styleUrl: './publications.css',
 })
 export class Publications implements OnInit {
-  publications = signal<Publication[]>([]);
-  loading = signal(false);
-  orderBy: OrderPublications = "fecha";
+  publications = signal<Publication[]>([]);   //Signal que trae todas las publicaciones en un array
+  loading = signal(false); //Signal para mostrar spinner
+  orderBy: OrderPublications = "fecha"; //Variable que cambia para ordenar las publis
   offset = 0;
   limit = 3;
   hasMore = signal(true);
@@ -38,13 +39,15 @@ export class Publications implements OnInit {
     image: undefined as File | undefined
   };
 
-  previewUrl: string | null = null;
+  // previewUrl: string | null = null;
+  previewUrl = signal<string | null>(null);
 
   constructor(private publicationsService: PublicationsService) { }
 
   ngOnInit(): void {
     this.loadPublications();
   }
+
 
   loadPublications(reset: boolean = false): void {
     if (reset) {
@@ -90,11 +93,18 @@ export class Publications implements OnInit {
     this.loadPublications(true);
   }
 
-  loadMore(): void {
-    if (this.hasMore() && !this.loading()) {
+  handleScroll():void {
+    //Solo carga si hay mas y no esta cargando
+    if(this.hasMore() && !this.loading()){
       this.loadPublications();
     }
   }
+
+  // loadMore(): void {
+  //   if (this.hasMore() && !this.loading()) {
+  //     this.loadPublications();
+  //   }
+  // }
 
   handleLikeToggle(publicationId: string): void {
     const publication = this.publications().find(p => p._id === publicationId);
@@ -210,7 +220,8 @@ export class Publications implements OnInit {
       // Crear preview
       const reader = new FileReader();
       reader.onload = () => {
-        this.previewUrl = reader.result as string;
+        // this.previewUrl = reader.result as string;
+        this.previewUrl.set(reader.result as string)
       };
       reader.readAsDataURL(file);
     }
@@ -218,7 +229,8 @@ export class Publications implements OnInit {
 
   removeImage(): void {
     this.newPublication.image = undefined;
-    this.previewUrl = null;
+    // this.previewUrl = null;
+    this.previewUrl.set(null)
   }
 
   createPublication(): void {
@@ -272,7 +284,8 @@ export class Publications implements OnInit {
       description: '',
       image: undefined
     };
-    this.previewUrl = null;
+    // this.previewUrl = null;
+    this.previewUrl.set(null)
   }
 
 }

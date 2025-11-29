@@ -1,4 +1,8 @@
-<div class="main-layout">
+<div class="main-layout"
+appInfiniteScrollDirective
+(scrolledBottom)="handleScroll()"
+[scrollThreshold]="150"
+>
     <app-navbar class="navbar"></app-navbar>
     <main class="container">
         <!-- Header -->
@@ -59,14 +63,14 @@
             </div>
     
             <!-- Load More -->
-            <button class="btn-load-more" 
+            <!-- <button class="btn-load-more" 
             *ngIf="showLoadMore()" 
             (click)="loadPublications()"
             [disabled]="loading()"
             >
     
                 Cargar más
-            </button>
+            </button> -->
     
             <!-- Loading -->
             <div class="loading" *ngIf="loading()">
@@ -110,7 +114,7 @@
                     style="display: none"
                     (change)="onFileSelected($event)" />
 
-                <div class="upload-area" *ngIf="!previewUrl" (click)="fileInput.click()">
+                <div class="upload-area" *ngIf="!previewUrl()" (click)="fileInput.click()">
                     <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                         stroke-width="1.5">
                         <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
@@ -121,8 +125,8 @@
                     <small>JPG, PNG o WEBP (máx 5MB)</small>
                 </div>
 
-                <div class="preview" *ngIf="previewUrl">
-                    <img [src]="previewUrl" alt="Preview" />
+                <div class="preview" *ngIf="previewUrl()">
+                    <img [src]="previewUrl()" alt="Preview" />
                     <button class="btn-remove" (click)="removeImage()">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                             stroke-width="2">

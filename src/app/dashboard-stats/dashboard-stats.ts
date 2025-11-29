@@ -24,6 +24,7 @@ export class DashboardStatsComponent implements OnInit {
   @ViewChild('commentsByPeriodChart') commentsPeriodCanvas!: ElementRef<HTMLCanvasElement>;
   @ViewChild('commentsByPublicationChart') commentsPubCanvas!: ElementRef<HTMLCanvasElement>;
 
+
   // Charts instances
   private publicationsByUserChart?: Chart;
   private commentsByPeriodChart?: Chart;
