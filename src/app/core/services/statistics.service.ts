@@ -53,6 +53,13 @@ export interface LikesByDayStat {
   count: number;
 }
 
+export interface VisitsByDayStat {
+  date: string;
+  count: number;
+}
+
+
+
 
 @Injectable({
   providedIn: 'root'
@@ -158,6 +165,25 @@ export class StatisticsService {
       `${this.apiUrlActivity}/likes-by-day`,
       { params, withCredentials: true }
     );
-
   }
+
+  getProfileVisits(
+    startDate: string,
+    endDate: string
+  ): Observable<StatisticsResponse<{ startDate: Date; endDate: Date; statistics: VisitsByDayStat[] }>> {
+
+    // 1. Crear los parámetros de consulta (Query Params)
+    const params = new HttpParams()
+      .set('startDate', startDate)
+      .set('endDate', endDate);
+
+    // 2. Realizar la petición GET al endpoint /visits-summary
+    return this.http.get<StatisticsResponse<any>>(
+      `${this.apiUrlActivity}/visits-summary`, // <--- Nuevo endpoint
+      { params, withCredentials: true }
+    );
+  }
+
+
+
 }

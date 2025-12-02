@@ -166,8 +166,67 @@
                     </form>
                 </div>
 
+
+
                 <div class="chart-wrapper">
                     <canvas #loginsByUserChart></canvas>
+                </div>
+            </div>
+
+            <!-- Chart 5: Visitas por Día (Línea) -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h2>Visitas por Día</h2>
+
+                    <form [formGroup]="visitsForm" class="date-form">
+                        <div class="date-inputs">
+                            <input type="date" formControlName="startDate" class="date-input">
+                            <span>hasta</span>
+                            <input type="date" formControlName="endDate" class="date-input">
+                            <button type="button" (click)="loadProfileVisits()" class="btn-apply">
+                                Aplicar
+                            </button>
+                        </div>
+
+                        <div class="quick-filters">
+                            <button type="button" (click)="setLast7Days('visits')" class="btn-filter">7
+                                días</button>
+                            <button type="button" (click)="setLast30Days('visits')" class="btn-filter">30
+                                días</button>
+                            <button type="button" (click)="setLast90Days('visits')" class="btn-filter">90
+                                días</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas #profileVisitsCanvas></canvas>
+                </div>
+            </div>
+
+            <!-- NUEVO: Chart 3: Me Gusta por Día (Línea) -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h2>Me Gusta por Día</h2>
+                    <form [formGroup]="likesForm" class="date-form">
+                        <div class="date-inputs">
+                            <input type="date" formControlName="startDate" class="date-input">
+                            <span>hasta</span>
+                            <input type="date" formControlName="endDate" class="date-input">
+                            <button type="button" (click)="loadLikesByDay()" class="btn-apply">
+                                Aplicar
+                            </button>
+                        </div>
+                        <div class="quick-filters">
+                            <button type="button" (click)="setLast7Days('likes')" class="btn-filter">7 días</button>
+                            <button type="button" (click)="setLast30Days('likes')" class="btn-filter">30
+                                días</button>
+                            <button type="button" (click)="setLast90Days('likes')" class="btn-filter">90
+                                días</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas #likesByDayChart></canvas>
                 </div>
             </div>
 

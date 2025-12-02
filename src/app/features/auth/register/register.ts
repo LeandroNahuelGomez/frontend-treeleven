@@ -14,7 +14,8 @@ import { AuthService } from '../../../core/services/auth.service';
 export class Register {
   //Declaramos variable vacia para despues usarla 
   registerForm!: FormGroup;
-  imagenPreview: string | null = null;
+  // imagenPreview: string | null = null;
+  imagenPreview = signal<string|null>(null);
   submitted = false;
   //Para validaciones del formulario
   currentStep = 1;
@@ -186,7 +187,8 @@ export class Register {
       // Crear preview
       const reader = new FileReader();
       reader.onload = () => {
-        this.imagenPreview = reader.result as string;
+        // this.imagenPreview = reader.result as string;
+        this.imagenPreview.set(reader.result as string)
       };
       reader.readAsDataURL(file);
     }

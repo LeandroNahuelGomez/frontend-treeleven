@@ -172,6 +172,10 @@ export class AuthService {
     );
   }
 
-
+  // 🚨 MÉTODO AGREGADO: Limpia el estado interno del usuario
+  public clearUserSession(): void {
+    this.currentUserSubject.next(null);
+    // Nota: Esto se usa principalmente en el Interceptor 401 para limpiar el estado del frontend.
+  }
 
 }

@@ -26,7 +26,7 @@ export class Login {
     private router: Router,
     private fb: FormBuilder,
     private authService: AuthService,
-    private sessionService:SessionService
+    private sessionService: SessionService
   ) {}
 
   ngOnInit(): void {
@@ -66,17 +66,17 @@ export class Login {
         if (error.error?.message) {
           console.log(error.error.message)
           this.errorMessage.set(error.error.message);
-        } 
-        
+        }
+
         else if (error.status === 401) {
           console.log(error.status)
           this.errorMessage.set('Credenciales incorrectas');
-        } 
-        
+        }
+
         else if (error.status === 0) {
           this.errorMessage.set('No se puede conectar con el servidor.');
-        } 
-        
+        }
+
         else {
           this.errorMessage.set('Error al iniciar sesión. Intenta nuevamente.');
         }

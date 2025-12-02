@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, signal } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, signal, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
@@ -24,6 +24,8 @@ export class DashboardStatsComponent implements OnInit {
   @ViewChild('commentsByPeriodChart') commentsPeriodCanvas!: ElementRef<HTMLCanvasElement>;
   @ViewChild('commentsByPublicationChart') commentsPubCanvas!: ElementRef<HTMLCanvasElement>;
   @ViewChild('loginsByUserChart') loginsCanvas!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('profileVisitsCanvas') profileVisitsCanvas!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('likesByDayChart') likesByDayCanvas!: ElementRef<HTMLCanvasElement>;
 
 
   // Charts instances
@@ -31,6 +33,8 @@ export class DashboardStatsComponent implements OnInit {
   private commentsByPeriodChart?: Chart;
   private commentsByPublicationChart?: Chart;
   private loginByUserChart?: Chart;
+  private visitsChart?: Chart;
+  private likesByDayChart?: Chart;
 
 
   // Forms
@@ -38,6 +42,8 @@ export class DashboardStatsComponent implements OnInit {
   commentsForm: FormGroup;
   commentsByPubForm: FormGroup;
   loginsForm: FormGroup;
+  visitsForm: FormGroup;
+  likesForm: FormGroup;
 
 
   // Signals
@@ -76,6 +82,16 @@ export class DashboardStatsComponent implements OnInit {
       endDate: [this.formatDate(today), Validators.required]
     });
 
+    this.visitsForm = this.fb.group({ // Inicialización del nuevo formulario
+      startDate: [this.formatDate(thirtyDaysAgo), Validators.required],
+      endDate: [this.formatDate(today), Validators.required]
+    });
+
+    this.likesForm = this.fb.group({
+      startDate: [this.formatDate(thirtyDaysAgo), Validators.required],
+      endDate: [this.formatDate(today), Validators.required]
+    });
+
   }
 
   ngOnInit(): void {
@@ -95,6 +111,8 @@ export class DashboardStatsComponent implements OnInit {
       this.loadCommentsByPeriod();
       this.loadCommentsByPublication();
       this.loadLoginsByUser();
+      this.loadProfileVisits();
+      this.loadLikesByDay();
     }, 100);
   }
 
@@ -104,6 +122,8 @@ export class DashboardStatsComponent implements OnInit {
     this.commentsByPeriodChart?.destroy();
     this.commentsByPublicationChart?.destroy();
     this.loginByUserChart?.destroy();
+    this.visitsChart?.destroy();
+    this.likesByDayChart?.destroy();
   }
 
   // ========== CARGAR DATOS ==========
@@ -197,6 +217,48 @@ export class DashboardStatsComponent implements OnInit {
     });
   }
 
+  loadProfileVisits(): void { // NUEVO MÉTODO DE CARGA
+    if (this.visitsForm.invalid) return;
+
+    this.isLoading.set(true);
+    const { startDate, endDate } = this.visitsForm.value;
+
+    // Utilizamos el método del servicio que creamos
+    this.statisticsService.getProfileVisits(startDate, endDate).subscribe({
+      next: (res) => {
+        console.log("VISITS RESPONSE:", res)
+        console.log("VISITS RESPONSE STATISTICS:", res.data.statistics)
+        this.renderProfileVisitsChart(res.data.statistics);
+        this.isLoading.set(false);
+      },
+      error: (err) => {
+        console.error('Error cargando resumen de visitas:', err);
+        this.error.set('Error al cargar las estadísticas');
+        this.isLoading.set(false);
+      }
+    });
+  }
+
+  loadLikesByDay(): void {
+        if (this.likesForm.invalid) return;
+
+        this.isLoading.set(true);
+        const { startDate, endDate } = this.likesForm.value;
+
+        // Llamada al método del servicio proporcionado
+        this.statisticsService.getLikesByDay(startDate, endDate).subscribe({
+            next: (res) => {
+                // El servicio devuelve { startDate, endDate, statistics: LikesByDayStat[] }
+                this.renderLikesByDayChart(res.data.statistics);
+                this.isLoading.set(false);
+            },
+            error: (err) => {
+                console.error('Error cargando likes por día:', err);
+                this.error.set('Error al cargar las estadísticas de Likes');
+                this.isLoading.set(false);
+            }
+        });
+    }
 
   // ========== RENDER CHARTS ==========
 
@@ -401,6 +463,109 @@ export class DashboardStatsComponent implements OnInit {
     });
   }
 
+  private renderProfileVisitsChart(data: any[]): void { // NUEVO MÉTODO DE RENDERIZADO
+    if (this.visitsChart) {
+      this.visitsChart.destroy();
+    }
+
+    const ctx = this.profileVisitsCanvas.nativeElement.getContext('2d');
+    if (!ctx) return;
+
+    const labels = data.map(i => i.userName || i.fullName);
+    const values = data.map(i => i.count);
+
+    this.visitsChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Visitas de Perfil',
+          data: values,
+          backgroundColor: 'rgba(255, 159, 64, 0.8)', // Un color diferente para distinguirlo
+          borderColor: 'rgba(255, 159, 64, 1)',
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          title: {
+            display: true,
+            text: 'Visitas de Perfil por Usuario Objetivo'
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              stepSize: 1
+            }
+          }
+        }
+      }
+    })
+  }
+
+  // NUEVO: Método para renderizar el gráfico de Likes por Día
+    private renderLikesByDayChart(data: any[]): void {
+        if (this.likesByDayChart) {
+            this.likesByDayChart.destroy();
+        }
+
+        const ctx = this.likesByDayCanvas.nativeElement.getContext('2d');
+        if (!ctx) return;
+
+        // Mapear los datos de Likes, similar a CommentsByPeriod
+        const labels = data.map(item => {
+          console.log(item)
+            const date = new Date(item.day);
+            return date.toLocaleDateString('es-ES', { day: '2-digit', month: 'short' });
+        });
+        const values = data.map(item => item.count);
+
+        const config: ChartConfiguration = {
+            type: 'line', // Gráfico de línea ideal para series de tiempo
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Me Gusta',
+                    data: values,
+                    borderColor: 'rgba(255, 99, 132, 1)', // Color rojizo/rosado para Likes
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    tension: 0.3,
+                    fill: true,
+                    pointRadius: 5,
+                    pointHoverRadius: 7
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
+                    title: {
+                        display: true,
+                        text: 'Me Gusta por Día',
+                        font: { size: 16, weight: 'bold' }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                }
+            }
+        };
+
+        this.likesByDayChart = new Chart(ctx, config);
+    }
 
   // ========== HELPERS ==========
 
@@ -417,7 +582,7 @@ export class DashboardStatsComponent implements OnInit {
   }
 
   // Presets de fechas
-  setLast7Days(formName: 'publications' | 'comments' | 'commentsByPub' | "logins"): void {
+  setLast7Days(formName: 'publications' | 'comments' | 'commentsByPub' | "logins" | "visits" | 'likes'): void {
     const today = new Date();
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(today.getDate() - 7);
@@ -431,7 +596,7 @@ export class DashboardStatsComponent implements OnInit {
     this.reloadChart(formName);
   }
 
-  setLast30Days(formName: 'publications' | 'comments' | 'commentsByPub' | 'logins'): void {
+  setLast30Days(formName: 'publications' | 'comments' | 'commentsByPub' | 'logins' | 'visits' | 'likes'): void {
     const today = new Date();
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(today.getDate() - 30);
@@ -445,7 +610,7 @@ export class DashboardStatsComponent implements OnInit {
     this.reloadChart(formName);
   }
 
-  setLast90Days(formName: 'publications' | 'comments' | 'commentsByPub' | 'logins'): void {
+  setLast90Days(formName: 'publications' | 'comments' | 'commentsByPub' | 'logins' | 'visits' | 'likes'): void {
     const today = new Date();
     const ninetyDaysAgo = new Date();
     ninetyDaysAgo.setDate(today.getDate() - 90);
@@ -464,6 +629,9 @@ export class DashboardStatsComponent implements OnInit {
       case 'publications': return this.publicationsForm;
       case 'comments': return this.commentsForm;
       case 'commentsByPub': return this.commentsByPubForm;
+      case 'logins': return this.loginsForm;
+      case 'visits': return this.visitsForm;
+      case 'likes': return this.likesForm;
       default: return this.publicationsForm;
     }
   }
@@ -474,6 +642,8 @@ export class DashboardStatsComponent implements OnInit {
       case 'comments': this.loadCommentsByPeriod(); break;
       case 'commentsByPub': this.loadCommentsByPublication(); break;
       case 'logins': this.loadLoginsByUser(); break;
+      case 'visits': this.loadProfileVisits(); break;
+      case 'likes': this.loadLikesByDay(); break;
     }
   }
 }

@@ -3,6 +3,8 @@ import { Component, inject, signal, computed } from '@angular/core';
 import { Router, RouterLink, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../core/services/auth.service';
+import { UsuarioResponse } from '../../core/services/auth.service';
+import { SessionService } from '../../core/services/session.service';
 
 interface MenuItem {
   id: string;
@@ -21,14 +23,19 @@ interface MenuItem {
 export class Navbar {
   activeItem: string = 'inicio';
   isAdmin = signal(false);
+  currentUser = signal<UsuarioResponse | null>(null);
 
   private router = inject(Router);
 
   constructor(
-    private authService: AuthService
+    private authService: AuthService,
+    private sessionService: SessionService
   ) {
-    const isAdmin = this.authService.isAdmin()
-    this.isAdmin.set(isAdmin);
+    // Suscribirse a cambios del usuario
+    this.authService.currentUser$.subscribe(user => {
+      this.currentUser.set(user);
+      this.isAdmin.set(user?.profile === 'administrador' || false);
+    });
   }
 
   menuItems: MenuItem[] = [
@@ -37,7 +44,7 @@ export class Navbar {
     // { id: 'mensajes', icon: 'send', label: 'Mensajes', route: '/messages' },
     // { id: 'crear', icon: 'add_box', label: 'Crear', route: '/create' },
     { id: 'perfil', icon: 'person', label: 'Perfil', route: '/profile' },
-    { id: 'guardados', icon: 'bookmark', label: 'Guardados', route: '/saved' },
+    // { id: 'guardados', icon: 'bookmark', label: 'Guardados', route: '/saved' },
     { id: 'logout', icon: 'logout', label: 'Logout', route: '/logout' }
   ];
 
@@ -131,6 +138,12 @@ export class Navbar {
   }
 
   private logout(): void {
+    // Limpiamos timers del SessionService antes de hacer logout
+    console.log("Ejecutando clearTimers y seteando false para que no aparezca el modal")
+    this.sessionService.clearTimers();
+    this.sessionService.showSessionModal.set(false);
+
+    //
     this.authService.logout().subscribe({
       next: res => {
         console.log('Logout completado:', res);

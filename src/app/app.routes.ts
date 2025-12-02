@@ -36,15 +36,18 @@ export const routes: Routes = [
         canActivate: [AuthGuard]
     }, {
         path: 'perfil/:id',
-        loadComponent: () => import('./features/profile/profile').then(m => m.Profile)
+        loadComponent: () => import('./features/profile/profile').then(m => m.Profile),
+        canActivate: [AuthGuard]
     },
     {
         path: "dashboard-user",
-        loadComponent: () => import('./dashboard-user/dashboard-user').then(m => m.DashboardUser)
+        loadComponent: () => import('./dashboard-user/dashboard-user').then(m => m.DashboardUser),
+        canActivate: [AuthGuard]
     },
     {
         path: "dashboard-stats",
-        loadComponent: () => import('./dashboard-stats/dashboard-stats').then(m => m.DashboardStatsComponent)
+        loadComponent: () => import('./dashboard-stats/dashboard-stats').then(m => m.DashboardStatsComponent),
+        canActivate: [AuthGuard]
     },
     {
         path: "publicacion",

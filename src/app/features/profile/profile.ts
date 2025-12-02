@@ -5,6 +5,8 @@ import { PublicationCardComponent } from '../../publication-card/publication-car
 import { User, UsersService } from '../../core/services/user.service';
 import { PublicationsService } from '../../core/services/publications.service';
 import { Publication, PublicationsResponse } from '../../shared/models/publication.model';
+import { ActivatedRoute } from '@angular/router';
+import Swal from 'sweetalert2';
 
 export interface ProfileData {
   _id: string;
@@ -42,12 +44,26 @@ export class Profile implements OnInit {
 
   constructor(
     private userService: UsersService,
-    private publicationsService: PublicationsService
+    private publicationsService: PublicationsService,
+    private route: ActivatedRoute
   ) { }
 
+  // ngOnInit(): void {
+  //   this.loadProfile();
+  // }
+
   ngOnInit(): void {
-    this.loadProfile();
+    const id = this.route.snapshot.paramMap.get('id');
+
+    if (id) {
+      // Perfil de OTRO usuario
+      this.loadProfileById(id);
+    } else {
+      // Perfil propio
+      this.loadProfile();
+    }
   }
+
 
   loadProfile(): void {
     this.userService.getMyProfile().subscribe({
@@ -63,6 +79,20 @@ export class Profile implements OnInit {
       }
     })
   }
+
+  loadProfileById(id: string): void {
+    this.userService.getUserProfileById(id).subscribe({
+      next: (res) => {
+        this.user.set(res.data);
+        this.isLoading.set(false);
+      },
+      error: () => {
+        this.error.set('No se pudo cargar el perfil del usuario.');
+        this.isLoading.set(false);
+      }
+    });
+  }
+
 
   // toggleUserRole(): void {
   //   const userId = this.user()?._id;
@@ -91,8 +121,6 @@ export class Profile implements OnInit {
   // }
 
 
-  // Manejar like/unlike
-  
   handleLikeToggle(publicationId: string): void {
     const publications = this.user()?.lastPublications;
     if (!publications) return;
@@ -106,9 +134,23 @@ export class Profile implements OnInit {
 
     action.subscribe({
       next: () => {
-        // Actualizar el estado localmente
-        publication.userLiked = !publication.userLiked;
-        publication.numberLikes += publication.userLiked ? 1 : -1;
+        // Actualizar Signal correctamente
+        this.user.update(current => {
+          if (!current) return current;
+          return {
+            ...current,
+            lastPublications: current.lastPublications.map(pub => {
+              if (pub._id === publicationId) {
+                return {
+                  ...pub,
+                  userLiked: !pub.userLiked,
+                  numberLikes: pub.userLiked ? pub.numberLikes - 1 : pub.numberLikes + 1
+                };
+              }
+              return pub;
+            })
+          };
+        });
       },
       error: (err) => {
         console.error('Error al dar/quitar like:', err);
@@ -117,10 +159,41 @@ export class Profile implements OnInit {
   }
 
   // Manejar eliminación de publicación
+  // handleDelete(publicationId: string): void {
+  //   if (!confirm('¿Estás seguro de que deseas eliminar esta publicación?')) {
+  //     return;
+  //   }
+
+  //   this.publicationsService.deletePublication(publicationId).subscribe({
+  //     next: () => {
+  //       // Eliminar de la lista local
+  //       this.user.update(current => {
+  //         if (!current) return current;
+  //         return {
+  //           ...current,
+  //           lastPublications: current.lastPublications.filter(p => p._id !== publicationId)
+  //         };
+  //       });
+  //       console.log('✅ Publicación eliminada');
+  //     },
+  //     error: (err) => {
+  //       console.error('❌ Error al eliminar publicación:', err);
+  //       alert('No se pudo eliminar la publicación');
+  //     }
+  //   });
+  // }
   handleDelete(publicationId: string): void {
-    if (!confirm('¿Estás seguro de que deseas eliminar esta publicación?')) {
-      return;
-    }
+  Swal.fire({
+    title: '¿Estás seguro?',
+    text: "Esta acción no se puede deshacer",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#3085d6',
+    confirmButtonText: 'Sí, eliminar',
+    cancelButtonText: 'Cancelar'
+  }).then((result) => {
+    if (!result.isConfirmed) return;
 
     this.publicationsService.deletePublication(publicationId).subscribe({
       next: () => {
@@ -132,14 +205,18 @@ export class Profile implements OnInit {
             lastPublications: current.lastPublications.filter(p => p._id !== publicationId)
           };
         });
+
+        Swal.fire('Eliminado', 'La publicación fue eliminada.', 'success');
         console.log('✅ Publicación eliminada');
       },
       error: (err) => {
         console.error('❌ Error al eliminar publicación:', err);
-        alert('No se pudo eliminar la publicación');
+        Swal.fire('Error', 'No se pudo eliminar la publicación', 'error');
       }
     });
-  }
+  });
+}
+
 
   // Calcular edad desde fecha de nacimiento
   getAge(birthDate: string): number {

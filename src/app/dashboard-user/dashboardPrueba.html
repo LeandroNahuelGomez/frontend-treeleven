@@ -154,7 +154,7 @@
                                     hidden>
 
                                 <label for="profilePicture" class="file-upload-label">
-                                    <div *ngIf="!previewUrl" class="upload-placeholder">
+                                    <div *ngIf="!previewUrl()" class="upload-placeholder">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40"
                                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
@@ -163,7 +163,7 @@
                                         </svg>
                                         <span>Haz clic para subir una imagen</span>
                                     </div>
-                                    <img *ngIf="previewUrl" [src]="previewUrl" alt="Preview" class="image-preview">
+                                    <img *ngIf="previewUrl()" [src]="previewUrl()" alt="Preview" class="image-preview">
                                 </label>
                             </div>
                         </div>

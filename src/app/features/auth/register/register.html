@@ -159,10 +159,10 @@
                             </svg>
                             Seleccionar imagen
                         </button>
-                        <span class="file-name" *ngIf="imagenPreview">✓ Imagen cargada</span>
+                        <span class="file-name" *ngIf="imagenPreview()">✓ Imagen cargada</span>
                     </div>
-                    <div class="image-preview" *ngIf="imagenPreview">
-                        <img [src]="imagenPreview" alt="Preview">
+                    <div class="image-preview" *ngIf="imagenPreview()">
+                        <img [src]="imagenPreview()" alt="Preview">
                     </div>
                 </div>
 

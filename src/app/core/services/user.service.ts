@@ -153,7 +153,7 @@ export class UsersService {
    * Solo para administradores
    */
   getAllUsers(): Observable<UsersResponse> {
-    return this.http.get<UsersResponse>(`${this.apiUrl}/admin/list`, {withCredentials: true});
+    return this.http.get<UsersResponse>(`${this.apiUrl}/admin/list`, { withCredentials: true });
   }
 
   /**
@@ -165,7 +165,7 @@ export class UsersService {
     return this.http.post<User>(
       `${this.apiUrl}/admin/create`,
       formData,
-      {withCredentials: true}
+      { withCredentials: true }
     );
   }
 
@@ -175,7 +175,7 @@ export class UsersService {
   disableUser(userId: string): Observable<{ message: string }> {
     return this.http.delete<{ message: string }>(
       `${this.apiUrl}/admin/disable/${userId}`,
-      {withCredentials: true}
+      { withCredentials: true }
     );
   }
 
@@ -186,7 +186,7 @@ export class UsersService {
     return this.http.post<{ message: string }>(
       `${this.apiUrl}/admin/enable/${userId}`,
       {},
-      {withCredentials: true}
+      { withCredentials: true }
     );
   }
 
@@ -204,10 +204,10 @@ export class UsersService {
 
   //SPRINT 5
   getUserProfileById(userId: string): Observable<any> {
-  return this.http.get<any>(`${this.apiUrl}/${userId}/profile`, {
-    withCredentials: true
-  });
-}
+    return this.http.get<any>(`${this.apiUrl}/${userId}/profile`, {
+      withCredentials: true
+    });
+  }
 
 
 

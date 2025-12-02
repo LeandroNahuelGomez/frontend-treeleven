@@ -1,7 +1,7 @@
 <article class="card">
   <!-- Header -->
   <div class="card-header">
-    <div class="author">
+    <div class="author" (click)="goToAuthorProfile()">
       <img [src]="publication.author.profileImageUrl" [alt]="publication.author.name" class="avatar" />
       <div class="author-info">
         <h3 class="author-name">
@@ -24,8 +24,8 @@
 
   <!-- Content -->
   <div class="card-body" >
-    <h2 class="title" (click)="viewDetail()" >{{ publication.title }}</h2>
-    <p class="description">{{ publication.description }}</p>
+    <h2 class="title" (click)="viewDetail()" >{{ publication.title | truncate: 55 }}</h2>
+    <p class="description">{{ publication.description | truncate:100 }}</p>
 
     <div *ngIf="publication.image" class="image-container">
       <img [src]="publication.image" [alt]="publication.title" (click)="viewDetail()"/>

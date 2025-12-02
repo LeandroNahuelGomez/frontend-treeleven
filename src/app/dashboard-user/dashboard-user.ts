@@ -8,6 +8,7 @@ import { CommonModule } from '@angular/common';
 import { Navbar } from '../shared/navbar/navbar';
 import { CleanTextPipe } from '../core/pipes/clean-text-pipe-pipe';
 import { AutoFocusDirective } from '../core/directives/auto-focus-directive';
+import Swal from 'sweetalert2';
 
 export interface UserListItem {
   _id: string;
@@ -52,7 +53,7 @@ export class DashboardUser implements OnInit {
   // Formulario
   userForm: FormGroup;
   selectedFile: File | null = null;
-  previewUrl: string | null = null;
+  previewUrl = signal<string | null>(null);
 
   constructor(
     private fb: FormBuilder,
@@ -142,14 +143,14 @@ export class DashboardUser implements OnInit {
     this.showCreateModal.set(true);
     this.userForm.reset({ profile: 'usuario' });
     this.selectedFile = null;
-    this.previewUrl = null;
+    this.previewUrl.set(null);
   }
 
   closeCreateModal(): void {
     this.showCreateModal.set(false);
     this.userForm.reset({ profile: 'usuario' });
     this.selectedFile = null;
-    this.previewUrl = null;
+    this.previewUrl.set(null);
     this.successMessage.set(null);
     this.error.set(null);
   }
@@ -176,7 +177,7 @@ export class DashboardUser implements OnInit {
       // Crear preview
       const reader = new FileReader();
       reader.onload = (e) => {
-        this.previewUrl = e.target?.result as string;
+        this.previewUrl.set(e.target?.result as string);
       };
       reader.readAsDataURL(file);
 
@@ -206,8 +207,11 @@ export class DashboardUser implements OnInit {
 
     // Agregar imagen si existe
     if (this.selectedFile) {
-      formData.append('profilePicture', this.selectedFile);
+      formData.append('profileImageUrl', this.selectedFile);
     }
+
+    console.log('FormData entries:');
+    formData.forEach((value, key) => console.log(key, value));
 
     this.usersService.createUserByAdmin(formData).subscribe({
       next: (res) => {
@@ -228,71 +232,99 @@ export class DashboardUser implements OnInit {
     });
   }
 
-  // Toggle activar/desactivar usuario
   toggleUserStatus(user: UserListItem): void {
     const action = user.active ? 'deshabilitar' : 'habilitar';
     const confirmMessage = user.active
       ? `¿Deshabilitar a ${user.name} ${user.lastName}? No podrá acceder a la aplicación.`
       : `¿Habilitar a ${user.name} ${user.lastName}?`;
 
-    if (!confirm(confirmMessage)) return;
+    Swal.fire({
+      title: 'Confirmación',
+      text: confirmMessage,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: `Sí, ${action}`,
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (!result.isConfirmed) return;
 
-    const request = user.active
-      ? this.usersService.disableUser(user._id)
-      : this.usersService.enableUser(user._id);
+      const request = user.active
+        ? this.usersService.disableUser(user._id)
+        : this.usersService.enableUser(user._id);
 
-    request.subscribe({
-      next: (res) => {
-        this.successMessage.set(res.message);
+      request.subscribe({
+        next: (res) => {
+          this.successMessage.set(res.message);
 
-        // Actualizar estado local
-        this.users.update(users =>
-          users.map(u =>
-            u._id === user._id
-              ? { ...u, active: !u.active }
-              : u
-          )
-        );
+          this.users.update(users =>
+            users.map(u =>
+              u._id === user._id
+                ? { ...u, active: !u.active }
+                : u
+            )
+          );
 
-        // Limpiar mensaje después de 3 segundos
-        setTimeout(() => this.successMessage.set(null), 3000);
-      },
-      error: (err) => {
-        console.error(`Error al ${action} usuario:`, err);
-        this.error.set(err.error?.message || `No se pudo ${action} el usuario`);
-        setTimeout(() => this.error.set(null), 3000);
-      }
+          setTimeout(() => this.successMessage.set(null), 3000);
+
+          Swal.fire('¡Hecho!', res.message, 'success');
+        },
+        error: (err) => {
+          console.error(`Error al ${action} usuario:`, err);
+          const errorMsg = err.error?.message || `No se pudo ${action} el usuario`;
+          this.error.set(errorMsg);
+          setTimeout(() => this.error.set(null), 3000);
+
+          Swal.fire('Error', errorMsg, 'error');
+        }
+      });
     });
   }
 
-  // Toggle rol usuario/administrador
   toggleUserRole(user: UserListItem): void {
     const newRole = user.profile === 'usuario' ? 'administrador' : 'usuario';
 
-    if (!confirm(`¿Cambiar rol de ${user.name} a ${newRole}?`)) return;
+    Swal.fire({
+      title: 'Confirmación',
+      text: `¿Cambiar rol de ${user.name} a ${newRole}?`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#aaa',
+      confirmButtonText: 'Sí, cambiar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (!result.isConfirmed) return;
 
-    this.usersService.toggleUserRole(user._id).subscribe({
-      next: (res) => {
-        this.successMessage.set(res.message);
+      this.usersService.toggleUserRole(user._id).subscribe({
+        next: (res) => {
+          this.successMessage.set(res.message);
 
-        // Actualizar estado local
-        this.users.update(users =>
-          users.map(u =>
-            u._id === user._id
-              ? { ...u, profile: res.data.newRole as 'usuario' | 'administrador' }
-              : u
-          )
-        );
+          this.users.update(users =>
+            users.map(u =>
+              u._id === user._id
+                ? { ...u, profile: res.data.newRole as 'usuario' | 'administrador' }
+                : u
+            )
+          );
 
-        setTimeout(() => this.successMessage.set(null), 3000);
-      },
-      error: (err) => {
-        console.error('Error al cambiar rol:', err);
-        this.error.set(err.error?.message || 'No se pudo cambiar el rol');
-        setTimeout(() => this.error.set(null), 3000);
-      }
+          setTimeout(() => this.successMessage.set(null), 3000);
+
+          Swal.fire('¡Hecho!', res.message, 'success');
+        },
+        error: (err) => {
+          console.error('Error al cambiar rol:', err);
+          const errorMsg = err.error?.message || 'No se pudo cambiar el rol';
+          this.error.set(errorMsg);
+          setTimeout(() => this.error.set(null), 3000);
+
+          Swal.fire('Error', errorMsg, 'error');
+        }
+      });
     });
   }
+
 
   // ========== HELPERS ==========
 

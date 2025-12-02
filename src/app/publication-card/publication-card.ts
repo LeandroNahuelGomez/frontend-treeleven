@@ -10,6 +10,9 @@ import { flush } from '@angular/core/testing';
 import { Comment } from '../shared/models/comment.model';
 import { Router } from '@angular/router';
 import { TimeAgoPipe } from '../core/pipes/time-ago-pipe';
+import Swal from 'sweetalert2';
+import { TruncatePipe } from '../core/pipes/truncate-pipe';
+import { HighlightDirective } from '../core/directives/high-light-directive';
 
 export interface CommentAuthor {
   _id: string;
@@ -31,7 +34,7 @@ export interface CommentResponse {
 @Component({
   selector: 'app-publication-card',
   standalone: true,
-  imports: [CommonModule, TimeAgoPipe],
+  imports: [CommonModule, TimeAgoPipe, TruncatePipe],
   templateUrl: './publication-card.html',
   styleUrls: ['./publication-card.css']
 })
@@ -77,7 +80,6 @@ export class PublicationCardComponent {
 
   get isMyPost(): boolean {
     const currentUser = this.authService.getCurrentUser();
-    console.log("Es boolean: ", currentUser?._id === this.publication.author._id)
     return currentUser?._id === this.publication.author._id;
   }
 
@@ -86,8 +88,8 @@ export class PublicationCardComponent {
   }
 
   viewDetail(): void {
-  this.router.navigate(['/publicacion', this.publication._id]);
-}
+    this.router.navigate(['/publicacion', this.publication._id]);
+  }
 
   toggleLike(): void {
     this.likeToggle.emit(this.publication._id);
@@ -143,6 +145,20 @@ export class PublicationCardComponent {
       }
     })
   }
+
+  goToAuthorProfile(): void {
+    const authorId = this.publication.author._id;
+
+    // Si es mi propio perfil → mandar a /profile (el tuyo)
+    if (this.currentUserId === authorId) {
+      this.router.navigate(['/mi-perfil']);
+      return;
+    }
+
+    // Si es otro usuario → mandar a /users/:id
+    this.router.navigate(['/perfil', authorId]);
+  }
+
 
   loadMoreComments(): void {
     if (!this.hasMore() || this.loadingComments()) return;
@@ -224,19 +240,46 @@ export class PublicationCardComponent {
   }
 
   // Eliminar
-  deleteComment(commentId: string): void {
-    if (!confirm('¿Eliminar este comentario?')) return;
+  // deleteComment(commentId: string): void {
+  //   if (!confirm('¿Eliminar este comentario?')) return;
 
-    this.commentsService.deleteComment(this.publication._id, commentId).subscribe({
-      next: () => {
-        this.comments.update(current => current.filter(c => c._id !== commentId));
-        this.totalCommentsCount.update(n => n - 1);
-      },
-      error: (err) => {
-        console.error('Error eliminando comentario:', err);
+  //   this.commentsService.deleteComment(this.publication._id, commentId).subscribe({
+  //     next: () => {
+  //       this.comments.update(current => current.filter(c => c._id !== commentId));
+  //       this.totalCommentsCount.update(n => n - 1);
+  //     },
+  //     error: (err) => {
+  //       console.error('Error eliminando comentario:', err);
+  //     }
+  //   });
+  // }
+  deleteComment(commentId: string): void {
+    Swal.fire({
+      title: '¿Eliminar este comentario?',
+      text: "Esta acción no se puede deshacer",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.commentsService.deleteComment(this.publication._id, commentId).subscribe({
+          next: () => {
+            this.comments.update(current => current.filter(c => c._id !== commentId));
+            this.totalCommentsCount.update(n => n - 1);
+            Swal.fire('Eliminado', 'El comentario fue eliminado.', 'success');
+          },
+          error: (err) => {
+            console.error('Error eliminando comentario:', err);
+            Swal.fire('Error', 'No se pudo eliminar el comentario.', 'error');
+          }
+        });
       }
     });
   }
+
 
   canEditComment(comment: Comment): boolean {
     return this.currentUserId === comment.author._id;
