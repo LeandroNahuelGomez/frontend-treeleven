@@ -23,17 +23,22 @@ export class DashboardStatsComponent implements OnInit {
   @ViewChild('publicationsByUserChart') pubByUserCanvas!: ElementRef<HTMLCanvasElement>;
   @ViewChild('commentsByPeriodChart') commentsPeriodCanvas!: ElementRef<HTMLCanvasElement>;
   @ViewChild('commentsByPublicationChart') commentsPubCanvas!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('loginsByUserChart') loginsCanvas!: ElementRef<HTMLCanvasElement>;
 
 
   // Charts instances
   private publicationsByUserChart?: Chart;
   private commentsByPeriodChart?: Chart;
   private commentsByPublicationChart?: Chart;
+  private loginByUserChart?: Chart;
+
 
   // Forms
   publicationsForm: FormGroup;
   commentsForm: FormGroup;
   commentsByPubForm: FormGroup;
+  loginsForm: FormGroup;
+
 
   // Signals
   isLoading = signal(false);
@@ -65,6 +70,12 @@ export class DashboardStatsComponent implements OnInit {
       startDate: [this.formatDate(thirtyDaysAgo), Validators.required],
       endDate: [this.formatDate(today), Validators.required]
     });
+
+    this.loginsForm = this.fb.group({
+      startDate: [this.formatDate(thirtyDaysAgo), Validators.required],
+      endDate: [this.formatDate(today), Validators.required]
+    });
+
   }
 
   ngOnInit(): void {
@@ -83,6 +94,7 @@ export class DashboardStatsComponent implements OnInit {
       this.loadPublicationsByUser();
       this.loadCommentsByPeriod();
       this.loadCommentsByPublication();
+      this.loadLoginsByUser();
     }, 100);
   }
 
@@ -91,6 +103,7 @@ export class DashboardStatsComponent implements OnInit {
     this.publicationsByUserChart?.destroy();
     this.commentsByPeriodChart?.destroy();
     this.commentsByPublicationChart?.destroy();
+    this.loginByUserChart?.destroy();
   }
 
   // ========== CARGAR DATOS ==========
@@ -162,6 +175,28 @@ export class DashboardStatsComponent implements OnInit {
       }
     });
   }
+
+  loadLoginsByUser(): void {
+    if (this.loginsForm.invalid) return;
+
+    this.isLoading.set(true);
+    const { startDate, endDate } = this.loginsForm.value;
+
+    this.statisticsService.getLoginByUser(startDate, endDate).subscribe({
+      next: (res) => {
+        console.log("LOGIN RESPONSE:", res)
+        console.log("LOGIN RESPONSE STATISTICS:", res.data.statistics)
+        this.renderLoginsByUserChart(res.data.statistics);
+        this.isLoading.set(false);
+      },
+      error: (err) => {
+        console.error('Error cargando logins por usuario:', err);
+        this.error.set('Error al cargar las estadísticas');
+        this.isLoading.set(false);
+      }
+    });
+  }
+
 
   // ========== RENDER CHARTS ==========
 
@@ -331,6 +366,42 @@ export class DashboardStatsComponent implements OnInit {
     this.commentsByPublicationChart = new Chart(ctx, config);
   }
 
+  private renderLoginsByUserChart(data: any[]): void {
+    if (this.loginByUserChart) {
+      this.loginByUserChart.destroy();
+    }
+
+    const ctx = this.loginsCanvas.nativeElement.getContext('2d');
+    if (!ctx) return;
+
+    const labels = data.map(i => i.userName || i.fullName);
+    const values = data.map(i => i.count);
+
+    this.loginByUserChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Logins',
+          data: values,
+          backgroundColor: 'rgba(54, 162, 235, 0.8)',
+          borderColor: 'rgba(54, 162, 235, 1)',
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          title: {
+            display: true,
+            text: 'Logins por Usuario'
+          }
+        }
+      }
+    });
+  }
+
+
   // ========== HELPERS ==========
 
   private formatDate(date: Date): string {
@@ -346,7 +417,7 @@ export class DashboardStatsComponent implements OnInit {
   }
 
   // Presets de fechas
-  setLast7Days(formName: 'publications' | 'comments' | 'commentsByPub'): void {
+  setLast7Days(formName: 'publications' | 'comments' | 'commentsByPub' | "logins"): void {
     const today = new Date();
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(today.getDate() - 7);
@@ -360,7 +431,7 @@ export class DashboardStatsComponent implements OnInit {
     this.reloadChart(formName);
   }
 
-  setLast30Days(formName: 'publications' | 'comments' | 'commentsByPub'): void {
+  setLast30Days(formName: 'publications' | 'comments' | 'commentsByPub' | 'logins'): void {
     const today = new Date();
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(today.getDate() - 30);
@@ -374,7 +445,7 @@ export class DashboardStatsComponent implements OnInit {
     this.reloadChart(formName);
   }
 
-  setLast90Days(formName: 'publications' | 'comments' | 'commentsByPub'): void {
+  setLast90Days(formName: 'publications' | 'comments' | 'commentsByPub' | 'logins'): void {
     const today = new Date();
     const ninetyDaysAgo = new Date();
     ninetyDaysAgo.setDate(today.getDate() - 90);
@@ -402,6 +473,7 @@ export class DashboardStatsComponent implements OnInit {
       case 'publications': this.loadPublicationsByUser(); break;
       case 'comments': this.loadCommentsByPeriod(); break;
       case 'commentsByPub': this.loadCommentsByPublication(); break;
+      case 'logins': this.loadLoginsByUser(); break;
     }
   }
 }

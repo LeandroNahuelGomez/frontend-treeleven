@@ -77,14 +77,11 @@ export class PublicationCardComponent {
 
   get isMyPost(): boolean {
     const currentUser = this.authService.getCurrentUser();
-    console.log("El usuario actual es:" ,currentUser)
+    console.log("Es boolean: ", currentUser?._id === this.publication.author._id)
     return currentUser?._id === this.publication.author._id;
   }
 
   get canDelete(): boolean {
-    console.log("El id es:", this.publication._id)
-    console.log("Es mi post? ", this.isMyPost)
-    console.log("Es admin?", this.authService.isAdmin())
     return this.isMyPost || this.authService.isAdmin();
   }
 

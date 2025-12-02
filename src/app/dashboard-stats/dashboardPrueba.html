@@ -143,6 +143,34 @@
                 </div>
             </div>
 
+            <!-- Chart 4: Logins por Usuario -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h2>Logins por Usuario</h2>
+
+                    <form [formGroup]="loginsForm" class="date-form">
+                        <div class="date-inputs">
+                            <input type="date" formControlName="startDate" class="date-input">
+                            <span>hasta</span>
+                            <input type="date" formControlName="endDate" class="date-input">
+                            <button type="button" (click)="loadLoginsByUser()" class="btn-apply">
+                                Aplicar
+                            </button>
+                        </div>
+
+                        <div class="quick-filters">
+                            <button type="button" (click)="setLast7Days('logins')" class="btn-filter">7 días</button>
+                            <button type="button" (click)="setLast30Days('logins')" class="btn-filter">30 días</button>
+                            <button type="button" (click)="setLast90Days('logins')" class="btn-filter">90 días</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="chart-wrapper">
+                    <canvas #loginsByUserChart></canvas>
+                </div>
+            </div>
+
             <!-- Loading Overlay -->
             <div *ngIf="isLoading()" class="loading-overlay">
                 <div class="spinner"></div>

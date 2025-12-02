@@ -34,10 +34,13 @@ export const routes: Routes = [
         path: "mi-perfil",
         loadComponent: () => import('./features/profile/profile').then(m => m.Profile),
         canActivate: [AuthGuard]
+    }, {
+        path: 'perfil/:id',
+        loadComponent: () => import('./features/profile/profile').then(m => m.Profile)
     },
     {
         path: "dashboard-user",
-        loadComponent: () => import('./dashboard-user/dashboard-user').then(m=> m.DashboardUser)
+        loadComponent: () => import('./dashboard-user/dashboard-user').then(m => m.DashboardUser)
     },
     {
         path: "dashboard-stats",

@@ -53,8 +53,7 @@ export class Profile implements OnInit {
     this.userService.getMyProfile().subscribe({
       next: (res) => {
         this.user.set(res.data)
-        console.log("El id del usuario es: ", res.data._id, " deberia ser: 69253df2853503866f6a8816")
-        console.log(res.data.profile)
+        console.log("Las publicaciones son: ", res.data.lastPublications)
         this.isLoading.set(false);
       },
       error: (err) => {
@@ -65,34 +64,35 @@ export class Profile implements OnInit {
     })
   }
 
-  toggleUserRole(): void {
-    const userId = this.user()?._id;
-    console.log("El id del usuario es: ", userId)
-    if (!userId) {
-      alert("No se pudo identificar al usuario");
-      return
-    }
-    this.userService.toggleUserRole(userId).subscribe({
-      next: (res) => {
-        console.log("ROL ACTUALIZADO", res.data.newRole)
-        this.user.update(current => {
-          if (!current) return current;
-          return {
-            ...current,
-            profile: res.data.newRole as "usuario" | "administrador"
-          }
-        });
-        alert(`Rol cambiado a: ${res.data.newRole}`);
-      },
-      error: (err) => {
-        console.error('❌ Error al cambiar el rol:', err);
-        alert('No se pudo cambiar el rol del usuario');
-      }
-    })
-  }
+  // toggleUserRole(): void {
+  //   const userId = this.user()?._id;
+  //   console.log("El id del usuario es: ", userId)
+  //   if (!userId) {
+  //     alert("No se pudo identificar al usuario");
+  //     return
+  //   }
+  //   this.userService.toggleUserRole(userId).subscribe({
+  //     next: (res) => {
+  //       console.log("ROL ACTUALIZADO", res.data.newRole)
+  //       this.user.update(current => {
+  //         if (!current) return current;
+  //         return {
+  //           ...current,
+  //           profile: res.data.newRole as "usuario" | "administrador"
+  //         }
+  //       });
+  //       alert(`Rol cambiado a: ${res.data.newRole}`);
+  //     },
+  //     error: (err) => {
+  //       console.error('❌ Error al cambiar el rol:', err);
+  //       alert('No se pudo cambiar el rol del usuario');
+  //     }
+  //   })
+  // }
 
 
   // Manejar like/unlike
+  
   handleLikeToggle(publicationId: string): void {
     const publications = this.user()?.lastPublications;
     if (!publications) return;

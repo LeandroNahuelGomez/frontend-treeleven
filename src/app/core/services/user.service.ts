@@ -202,5 +202,13 @@ export class UsersService {
   }
 
 
+  //SPRINT 5
+  getUserProfileById(userId: string): Observable<any> {
+  return this.http.get<any>(`${this.apiUrl}/${userId}/profile`, {
+    withCredentials: true
+  });
+}
+
+
 
 }
